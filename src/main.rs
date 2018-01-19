@@ -67,7 +67,7 @@ fn extract_string<'a>(
 }
 
 #[post("/users", format = "application/json", data = "<new_user>")]
-fn post_user(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Errors> {
+fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Errors> {
     use schema::users;
 
     let mut errors = Errors {
@@ -99,13 +99,49 @@ fn post_user(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Err
     Ok(Json(json!({ "user": user.to_user_auth() })))
 }
 
+#[derive(Deserialize)]
+struct LoginUser {
+    user: LoginUserData,
+}
+
+#[derive(Deserialize)]
+struct LoginUserData {
+    email: Option<String>,
+    password: Option<String>,
+}
+
+#[post("/users/login", format = "application/json", data = "<user>")]
+fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>, Errors> {
+    let mut errors = Errors::new();
+    let email = extract_string(&user.user.email, "email", &mut errors);
+    let password = extract_string(&user.user.password, "password", &mut errors);
+    match login_user(&conn, &email, &password) {
+        Some(user) => Ok(Json(json!({ "user": user.to_user_auth() }))),
+        None => {
+            errors.add("email or password", ValidationError::new("is invalid"));
+            Err(errors)
+        }
+    }
+}
+
+#[get("/user")]
+fn get_user(conn: db::Conn) -> Option<Json<Value>> {
+    find_user(&conn, 1).map(|user| Json(json!({ "user": user })))
+}
+
 #[get("/articles")]
 fn get_articles() -> Json<Value> {
     Json(json!({"articles": []}))
 }
 
-#[get("/articles/feed")]
-fn get_articles_feed() -> Json<Value> {
+#[derive(FromForm)]
+struct FeedArticles {
+    limit: Option<u32>,
+    offset: Option<u32>,
+}
+
+#[get("/articles/feed?<params>")]
+fn get_articles_feed(params: FeedArticles) -> Json<Value> {
     Json(json!({"articles": []}))
 }
 
@@ -128,7 +164,14 @@ fn main() {
     rocket::ignite()
         .mount(
             "/api",
-            routes![post_user, get_articles, get_articles_feed, get_tags],
+            routes![
+                post_users,
+                post_users_login,
+                get_user,
+                get_articles,
+                get_articles_feed,
+                get_tags
+            ],
         )
         .manage(pool)
         .attach(rocket_cors::Cors::default())

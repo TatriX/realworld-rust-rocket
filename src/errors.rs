@@ -34,7 +34,7 @@ impl<'r> Responder<'r> for Errors {
 
 impl Errors {
     #[allow(dead_code)]
-    fn new() -> Errors {
+    pub fn new() -> Errors {
         Errors {
             errors: ValidationErrors::new(),
         }
