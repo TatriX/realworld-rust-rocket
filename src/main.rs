@@ -99,6 +99,21 @@ fn post_user(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Err
     Ok(Json(json!({ "user": user.to_user_auth() })))
 }
 
+#[get("/articles")]
+fn get_articles() -> Json<Value> {
+    Json(json!({"articles": []}))
+}
+
+#[get("/articles/feed")]
+fn get_articles_feed() -> Json<Value> {
+    Json(json!({"articles": []}))
+}
+
+#[get("/tags")]
+fn get_tags() -> Json<Value> {
+    Json(json!({"tags": []}))
+}
+
 #[error(404)]
 fn not_found() -> Json<Value> {
     Json(json!({
@@ -111,7 +126,10 @@ fn main() {
     let pool = db::init_pool();
 
     rocket::ignite()
-        .mount("/api", routes![post_user])
+        .mount(
+            "/api",
+            routes![post_user, get_articles, get_articles_feed, get_tags],
+        )
         .manage(pool)
         .attach(rocket_cors::Cors::default())
         .attach(AdHoc::on_response(|_req, resp| {
