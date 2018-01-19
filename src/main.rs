@@ -1,4 +1,3 @@
-#![feature(match_default_bindings)]
 #![feature(plugin, custom_derive)]
 #![plugin(rocket_codegen)]
 
@@ -45,11 +44,26 @@ struct NewUser {
 
 #[derive(Deserialize, Validate)]
 struct NewUserData {
-    username: String,
+    #[validate(length(min = "1"))]
+    username: Option<String>,
     #[validate(email)]
-    email: String,
+    email: Option<String>,
     #[validate(length(min = "8"))]
-    password: String,
+    password: Option<String>,
+}
+
+fn extract_string<'a>(
+    maybe_string: &'a Option<String>,
+    field_name: &'static str,
+    errors: &mut Errors,
+) -> &'a str {
+    maybe_string
+        .as_ref()
+        .map(String::as_str)
+        .unwrap_or_else(|| {
+            errors.add(field_name, ValidationError::new("can't be blank"));
+            ""
+        })
 }
 
 #[post("/users", format = "application/json", data = "<new_user>")]
@@ -64,11 +78,9 @@ fn post_user(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Err
             .unwrap_or_else(ValidationErrors::new),
     };
 
-    let NewUserData {
-        username,
-        email,
-        password,
-    } = &new_user.user;
+    let username = extract_string(&new_user.user.username, "username", &mut errors);
+    let email = extract_string(&new_user.user.email, "email", &mut errors);
+    let password = extract_string(&new_user.user.password, "password", &mut errors);
 
     let n: i64 = users::table
         .filter(users::username.eq(username))
