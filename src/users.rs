@@ -71,3 +71,7 @@ pub fn find_user(conn: &PgConnection, id: i32) -> Option<User> {
         Ok(user) => Some(user),
     }
 }
+
+pub fn update_user(conn: &PgConnection, id: i32) -> Option<User> {
+    None
+}

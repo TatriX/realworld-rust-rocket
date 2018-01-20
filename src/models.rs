@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use jwt;
+use auth;
 
 type Url = String;
 
@@ -26,15 +26,11 @@ pub struct UserAuth<'a> {
 impl User {
     pub fn to_user_auth(&self) -> UserAuth {
         let exp = Utc::now() + Duration::days(60);
-        let payload = json!({
+        let token = auth::encode_payload(json!({
             "id" : self.id,
             "username" : &self.username,
             "exp": exp.timestamp(),
-        });
-        let header = json!({});
-        let secret = "secret123";
-        let token =
-            jwt::encode(header, &secret.to_string(), &payload, jwt::Algorithm::HS256).expect("jwt");
+        }));
 
         UserAuth {
             username: &self.username,

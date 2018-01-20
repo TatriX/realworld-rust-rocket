@@ -28,11 +28,12 @@ mod schema;
 mod models;
 mod users;
 mod errors;
+mod auth;
 
 use rocket_contrib::{Json, Value};
-use rocket::fairing::AdHoc;
 
 use users::*;
+use auth::Auth;
 use validator::{Validate, ValidationError, ValidationErrors};
 use diesel::prelude::*;
 use errors::Errors;
@@ -125,8 +126,33 @@ fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>
 }
 
 #[get("/user")]
-fn get_user(conn: db::Conn) -> Option<Json<Value>> {
+fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+    println!("Auth: {:?}", auth);
     find_user(&conn, 1).map(|user| Json(json!({ "user": user })))
+}
+
+#[derive(Deserialize)]
+struct UpdateUser {
+    user: UpdateUserData,
+}
+
+#[derive(Deserialize)]
+struct UpdateUserData {
+    username: Option<String>,
+    email: Option<String>,
+    bio: Option<String>,
+    image: Option<String>,
+    password: Option<String>,
+}
+
+#[put("/user", data = "<user>")]
+fn put_user(user: Json<UpdateUser>, conn: db::Conn) -> Option<Json<Value>> {
+    find_user(&conn, 1).map(|user| Json(json!({ "user": user })))
+}
+
+#[get("/profiles/<username>")]
+fn get_profile(username: String) -> Option<Json<Value>> {
+    None
 }
 
 #[get("/articles")]
@@ -175,9 +201,6 @@ fn main() {
         )
         .manage(pool)
         .attach(rocket_cors::Cors::default())
-        .attach(AdHoc::on_response(|_req, resp| {
-            println!("{:?}", resp);
-        }))
         .catch(errors![not_found])
         .launch();
 }
