@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use auth;
+use auth::Auth;
 
 type Url = String;
 
@@ -26,11 +26,11 @@ pub struct UserAuth<'a> {
 impl User {
     pub fn to_user_auth(&self) -> UserAuth {
         let exp = Utc::now() + Duration::days(60);
-        let token = auth::encode_payload(json!({
-            "id" : self.id,
-            "username" : &self.username,
-            "exp": exp.timestamp(),
-        }));
+        let token = Auth {
+            id: self.id,
+            username: self.username.clone(),
+            exp: exp.timestamp(),
+        }.token();
 
         UserAuth {
             username: &self.username,

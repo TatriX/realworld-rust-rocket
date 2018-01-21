@@ -127,8 +127,7 @@ fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>
 
 #[get("/user")]
 fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
-    println!("Auth: {:?}", auth);
-    find_user(&conn, 1).map(|user| Json(json!({ "user": user })))
+    find_user(&conn, auth.id).map(|user| Json(json!({ "user": user })))
 }
 
 #[derive(Deserialize)]
@@ -136,18 +135,9 @@ struct UpdateUser {
     user: UpdateUserData,
 }
 
-#[derive(Deserialize)]
-struct UpdateUserData {
-    username: Option<String>,
-    email: Option<String>,
-    bio: Option<String>,
-    image: Option<String>,
-    password: Option<String>,
-}
-
-#[put("/user", data = "<user>")]
-fn put_user(user: Json<UpdateUser>, conn: db::Conn) -> Option<Json<Value>> {
-    find_user(&conn, 1).map(|user| Json(json!({ "user": user })))
+#[put("/user", format = "application/json", data = "<user>")]
+fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+    update_user(&conn, auth.id, &user.user).map(|user| Json(json!({ "user": user })))
 }
 
 #[get("/profiles/<username>")]
@@ -193,6 +183,7 @@ fn main() {
             routes![
                 post_users,
                 post_users_login,
+                put_user,
                 get_user,
                 get_articles,
                 get_articles_feed,
