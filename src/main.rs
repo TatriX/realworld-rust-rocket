@@ -127,7 +127,7 @@ fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>
 
 #[get("/user")]
 fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
-    find_user(&conn, auth.id).map(|user| Json(json!({ "user": user })))
+    find_user(&conn, auth.id).map(|user| Json(json!({ "user": user.to_user_auth() })))
 }
 
 #[derive(Deserialize)]
@@ -137,7 +137,7 @@ struct UpdateUser {
 
 #[put("/user", format = "application/json", data = "<user>")]
 fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
-    update_user(&conn, auth.id, &user.user).map(|user| Json(json!({ "user": user })))
+    update_user(&conn, auth.id, &user.user).map(|user| Json(json!({ "user": user.to_user_auth() })))
 }
 
 #[get("/profiles/<username>")]
