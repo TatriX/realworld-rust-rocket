@@ -1,9 +1,9 @@
 use schema::users;
+use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
-use diesel;
-use models::User;
+use models::user::User;
 
 #[derive(Insertable)]
 #[table_name = "users"]
@@ -13,7 +13,7 @@ pub struct NewUser<'a> {
     pub hash: &'a str,
 }
 
-pub fn create_user<'a>(
+pub fn create<'a>(
     conn: &PgConnection,
     username: &'a str,
     email: &'a str,
@@ -34,7 +34,7 @@ pub fn create_user<'a>(
         .expect("Error saving user")
 }
 
-pub fn login_user<'a>(conn: &PgConnection, email: &'a str, password: &'a str) -> Option<User> {
+pub fn login<'a>(conn: &PgConnection, email: &'a str, password: &'a str) -> Option<User> {
     let result = users::table
         .filter(users::email.eq(email))
         .get_result::<User>(conn);
@@ -61,7 +61,7 @@ pub fn login_user<'a>(conn: &PgConnection, email: &'a str, password: &'a str) ->
     }
 }
 
-pub fn find_user(conn: &PgConnection, id: i32) -> Option<User> {
+pub fn find(conn: &PgConnection, id: i32) -> Option<User> {
     let result = users::table.find(id).get_result::<User>(conn);
     match result {
         Err(err) => {
@@ -86,7 +86,7 @@ pub struct UpdateUserData {
     password: Option<String>,
 }
 
-pub fn update_user(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<User> {
+pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<User> {
     let data = &UpdateUserData {
         password: None,
         ..data.clone()

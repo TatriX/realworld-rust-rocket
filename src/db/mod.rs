@@ -2,6 +2,8 @@ extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_diesel;
 
+pub mod users;
+
 use self::dotenv::dotenv;
 use std::ops::Deref;
 
