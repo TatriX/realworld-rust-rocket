@@ -3,6 +3,7 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 
 pub mod users;
+pub mod articles;
 
 use self::dotenv::dotenv;
 use std::ops::Deref;

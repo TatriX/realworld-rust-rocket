@@ -5,10 +5,10 @@ table! {
         title -> Text,
         description -> Text,
         body -> Text,
-        author -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
-        favorites_count -> Nullable<Int4>,
+        author -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        favorites_count -> Int4,
     }
 }
 

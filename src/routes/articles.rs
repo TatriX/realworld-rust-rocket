@@ -1,6 +1,9 @@
 use rocket_contrib::{Json, Value};
 use auth::Auth;
-use validator::Validate;
+use validator::{Validate, ValidationErrors};
+use db;
+use errors::Errors;
+use util::extract_string;
 
 #[derive(Deserialize)]
 struct NewArticle {
@@ -8,25 +11,58 @@ struct NewArticle {
 }
 
 #[derive(Deserialize, Validate)]
-struct NewArticleData {
+pub struct NewArticleData {
     #[validate(length(min = "1"))]
-    title: String,
+    title: Option<String>,
     #[validate(length(min = "1"))]
-    description: String,
+    description: Option<String>,
     #[validate(length(min = "1"))]
-    body: String,
+    body: Option<String>,
     #[serde(rename = "tagList")]
     tag_list: Vec<String>,
 }
 
 #[post("/articles", format = "application/json", data = "<new_article>")]
-fn post_articles(auth: Auth, new_article: Json<NewArticle>) -> Json<Value> {
-    Json(json!({}))
+fn post_articles(
+    auth: Auth,
+    new_article: Json<NewArticle>,
+    conn: db::Conn,
+) -> Result<Json<Value>, Errors> {
+    let mut errors = Errors {
+        errors: new_article
+            .article
+            .validate()
+            .err()
+            .unwrap_or_else(ValidationErrors::new),
+    };
+
+    let title = extract_string(&new_article.article.title, "title", &mut errors);
+    let description = extract_string(&new_article.article.description, "description", &mut errors);
+    let body = extract_string(&new_article.article.body, "body", &mut errors);
+
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+
+    let article = db::articles::create(
+        &conn,
+        auth.id,
+        &title,
+        &description,
+        &body,
+        &new_article.article.tag_list,
+    );
+    Ok(Json(json!({ "article": article })))
 }
 
 #[get("/articles")]
 fn get_articles() -> Json<Value> {
     Json(json!({"articles": []}))
+}
+
+#[get("/articles/<slug>")]
+fn get_article(slug: String, conn: db::Conn) -> Option<Json<Value>> {
+    db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
 }
 
 #[derive(FromForm)]

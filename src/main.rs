@@ -23,6 +23,9 @@ extern crate dotenv;
 extern crate chrono;
 extern crate frank_jwt as jwt;
 
+extern crate rand;
+extern crate slug;
+
 mod db;
 mod schema;
 mod models;
