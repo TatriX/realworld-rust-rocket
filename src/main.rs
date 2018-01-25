@@ -56,6 +56,7 @@ fn main() {
                 routes::users::put_user,
                 routes::users::get_user,
                 routes::articles::post_articles,
+                routes::articles::put_articles,
                 routes::articles::get_articles,
                 routes::articles::get_articles_comments,
                 routes::articles::get_articles_feed,

@@ -18,7 +18,7 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn to_json(self, author: User) -> ArticleJson {
+    pub fn attach(self, author: User) -> ArticleJson {
         ArticleJson {
             id: self.id,
             slug: self.slug,

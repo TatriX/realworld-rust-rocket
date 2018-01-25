@@ -5,7 +5,7 @@ use schema::users;
 use diesel::pg::PgConnection;
 use models::article::{Article, ArticleJson};
 use models::user::User;
-use slug::slugify;
+use slug;
 use rand::{self, Rng};
 
 const SUFFIX_LEN: usize = 6;
@@ -28,20 +28,30 @@ pub fn create<'a>(
     description: &'a str,
     body: &'a str,
     tag_list: &'a Vec<String>,
-) -> Article {
+) -> ArticleJson {
     let new_article = &NewArticle {
         title,
         description,
         body,
         author,
         tag_list,
-        slug: &format!("{}-{}", slugify(title), generate_suffix(SUFFIX_LEN)),
+        slug: &slugify(title),
     };
+
+    let author = users::table
+        .find(author)
+        .get_result::<User>(conn)
+        .expect("Error loading author");
 
     diesel::insert_into(articles::table)
         .values(new_article)
         .get_result::<Article>(conn)
         .expect("Error creating article")
+        .attach(author)
+}
+
+fn slugify(title: &str) -> String {
+    format!("{}-{}", slug::slugify(title), generate_suffix(SUFFIX_LEN))
 }
 
 fn generate_suffix(len: usize) -> String {
@@ -60,12 +70,40 @@ pub fn find(conn: &PgConnection, slug: &str) -> Option<ArticleJson> {
             println!("find_article: {}", err);
             None
         }
-        Ok(article) => {
-            let author = users::table
-                .find(article.author)
-                .get_result::<User>(conn)
-                .expect("Error loading author");
-            Some(article.to_json(author))
-        }
+        Ok(article) => Some(populate(conn, article)),
     }
+}
+
+#[derive(Deserialize, AsChangeset, Default, Clone)]
+#[table_name = "articles"]
+pub struct UpdateArticleData {
+    title: Option<String>,
+    description: Option<String>,
+    body: Option<String>,
+    #[serde(skip)]
+    slug: Option<String>,
+    #[serde(rename = "tagList")]
+    tag_list: Vec<String>,
+}
+
+pub fn update(conn: &PgConnection, slug: &str, data: &UpdateArticleData) -> Option<ArticleJson> {
+    let mut data = data.clone();
+    if let Some(ref title) = data.title {
+        data.slug = Some(slugify(&title));
+    }
+    // TODO: check for not_found
+    let article = diesel::update(articles::table.filter(articles::slug.eq(slug)))
+        .set(&data)
+        .get_result(conn)
+        .expect("Error loading article");
+
+    Some(populate(conn, article))
+}
+
+fn populate(conn: &PgConnection, article: Article) -> ArticleJson {
+    let author = users::table
+        .find(article.author)
+        .get_result::<User>(conn)
+        .expect("Error loading author");
+    article.attach(author)
 }

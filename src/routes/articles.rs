@@ -60,6 +60,22 @@ fn get_articles(slug: String, conn: db::Conn) -> Option<Json<Value>> {
     db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
 }
 
+#[derive(Deserialize)]
+struct UpdateArticle {
+    article: db::articles::UpdateArticleData,
+}
+
+#[put("/articles/<slug>", format = "application/json", data = "<article>")]
+fn put_articles(
+    slug: String,
+    article: Json<UpdateArticle>,
+    auth: Auth,
+    conn: db::Conn,
+) -> Option<Json<Value>> {
+    db::articles::update(&conn, &slug, &article.article)
+        .map(|article| Json(json!({ "article": article })))
+}
+
 // #[get("/articles")]
 // fn get_articles() -> Json<Value> {
 //     Json(json!({"articles": []}))
