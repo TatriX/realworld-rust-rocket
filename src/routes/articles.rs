@@ -55,14 +55,19 @@ fn post_articles(
     Ok(Json(json!({ "article": article })))
 }
 
-#[get("/articles")]
-fn get_articles() -> Json<Value> {
-    Json(json!({"articles": []}))
+#[get("/articles/<slug>")]
+fn get_articles(slug: String, conn: db::Conn) -> Option<Json<Value>> {
+    db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
 }
 
-#[get("/articles/<slug>")]
-fn get_article(slug: String, conn: db::Conn) -> Option<Json<Value>> {
-    db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
+// #[get("/articles")]
+// fn get_articles() -> Json<Value> {
+//     Json(json!({"articles": []}))
+// }
+
+#[get("/articles/<slug>/comments")]
+fn get_articles_comments(slug: String) -> Json<Value> {
+    Json(json!({"comments": []}))
 }
 
 #[derive(FromForm)]

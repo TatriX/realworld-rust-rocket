@@ -6,16 +6,10 @@ table! {
         description -> Text,
         body -> Text,
         author -> Int4,
+        tag_list -> Array<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
         favorites_count -> Int4,
-    }
-}
-
-table! {
-    article_tag (tag, article) {
-        tag -> Int4,
-        article -> Int4,
     }
 }
 
@@ -34,13 +28,6 @@ table! {
 }
 
 table! {
-    tags (id) {
-        id -> Int4,
-        name -> Text,
-    }
-}
-
-table! {
     users (id) {
         id -> Int4,
         username -> Text,
@@ -51,17 +38,13 @@ table! {
     }
 }
 
-joinable!(article_tag -> articles (article));
-joinable!(article_tag -> tags (tag));
 joinable!(articles -> users (author));
 joinable!(favorites -> articles (article));
 joinable!(favorites -> users (user));
 
 allow_tables_to_appear_in_same_query!(
     articles,
-    article_tag,
     favorites,
     follows,
-    tags,
     users,
 );
