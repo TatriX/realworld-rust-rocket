@@ -55,8 +55,24 @@ fn post_articles(
     Ok(Json(json!({ "article": article })))
 }
 
+#[derive(FromForm)]
+struct ListArticles {
+    tag: Option<String>,
+    author: Option<String>,
+    favorited: Option<String>,
+    limit: Option<u32>,
+    offset: Option<u32>,
+}
+
+/// return multiple articles, ordered by most recent first
+#[get("/articles?<params>")]
+fn get_articles(params: ListArticles) -> Json<Value> {
+    // db::articles::find
+    Json(json!({"articles": []}))
+}
+
 #[get("/articles/<slug>")]
-fn get_articles(slug: String, conn: db::Conn) -> Option<Json<Value>> {
+fn get_article(slug: String, conn: db::Conn) -> Option<Json<Value>> {
     db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
 }
 
@@ -75,11 +91,6 @@ fn put_articles(
     db::articles::update(&conn, &slug, &article.article)
         .map(|article| Json(json!({ "article": article })))
 }
-
-// #[get("/articles")]
-// fn get_articles() -> Json<Value> {
-//     Json(json!({"articles": []}))
-// }
 
 #[get("/articles/<slug>/comments")]
 fn get_articles_comments(slug: String) -> Json<Value> {
