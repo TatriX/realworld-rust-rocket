@@ -2,6 +2,7 @@ use diesel;
 use diesel::prelude::*;
 use schema::articles;
 use schema::users;
+use schema::favorites;
 use diesel::pg::PgConnection;
 use models::article::{Article, ArticleJson};
 use models::user::User;
@@ -9,6 +10,7 @@ use slug;
 use rand::{self, Rng};
 
 const SUFFIX_LEN: usize = 6;
+const DEFAULT_LIMIT: i64 = 20;
 
 #[derive(Insertable)]
 #[table_name = "articles"]
@@ -47,7 +49,7 @@ pub fn create<'a>(
         .values(new_article)
         .get_result::<Article>(conn)
         .expect("Error creating article")
-        .attach(author)
+        .attach(author, false)
 }
 
 fn slugify(title: &str) -> String {
@@ -61,16 +63,54 @@ fn generate_suffix(len: usize) -> String {
         .collect::<String>()
 }
 
-pub fn find(conn: &PgConnection, slug: &str) -> Option<ArticleJson> {
+#[derive(FromForm, Default)]
+pub struct FindArticles {
+    tag: Option<String>,
+    author: Option<String>,
+    /// favorited by user
+    favorited: Option<String>,
+    limit: Option<i64>,
+    offset: Option<i64>,
+}
+
+pub fn find(conn: &PgConnection, params: FindArticles) -> Vec<Article> {
+    let mut query = articles::table
+        .select(articles::all_columns)
+        .inner_join(users::table)
+        .into_boxed();
+    if let Some(author) = params.author {
+        query = query.filter(users::username.eq(author))
+    }
+    if let Some(tag) = params.tag {
+        query = query.or_filter(articles::tag_list.contains(vec![tag]))
+    }
+    if let Some(_favorited) = params.favorited {
+        unimplemented!();
+    }
+    let result = query
+        .limit(params.limit.unwrap_or(DEFAULT_LIMIT))
+        .offset(params.offset.unwrap_or(0))
+        .get_results::<Article>(conn);
+    match result {
+        Err(err) => {
+            println!("articles::find : {}", err);
+            vec![]
+        }
+        Ok(articles) => articles,
+    }
+}
+
+pub fn find_one(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
     let result = articles::table
         .filter(articles::slug.eq(slug))
         .first::<Article>(conn);
+
     match result {
         Err(err) => {
-            println!("find_article: {}", err);
+            println!("articles::find_one: {}", err);
             None
         }
-        Ok(article) => Some(populate(conn, article)),
+        Ok(article) => Some(populate(conn, article, user_id)),
     }
 }
 
@@ -86,7 +126,12 @@ pub struct UpdateArticleData {
     tag_list: Vec<String>,
 }
 
-pub fn update(conn: &PgConnection, slug: &str, data: &UpdateArticleData) -> Option<ArticleJson> {
+pub fn update(
+    conn: &PgConnection,
+    slug: &str,
+    user_id: i32,
+    data: &UpdateArticleData,
+) -> Option<ArticleJson> {
     let mut data = data.clone();
     if let Some(ref title) = data.title {
         data.slug = Some(slugify(&title));
@@ -97,13 +142,28 @@ pub fn update(conn: &PgConnection, slug: &str, data: &UpdateArticleData) -> Opti
         .get_result(conn)
         .expect("Error loading article");
 
-    Some(populate(conn, article))
+    Some(populate(conn, article, user_id))
 }
 
-fn populate(conn: &PgConnection, article: Article) -> ArticleJson {
+pub fn delete(conn: &PgConnection, slug: &str) {
+    let result = diesel::delete(articles::table.filter(articles::slug.eq(slug))).execute(conn);
+    if let Err(err) = result {
+        println!("articles::delete: {}", err);
+    }
+}
+
+fn populate(conn: &PgConnection, article: Article, user_id: i32) -> ArticleJson {
+    use diesel::select;
+    use diesel::dsl::exists;
+
     let author = users::table
         .find(article.author)
         .get_result::<User>(conn)
         .expect("Error loading author");
-    article.attach(author)
+
+    let favorited = select(exists(favorites::table.find((user_id, article.id))))
+        .get_result(conn)
+        .expect("Error loading favorited");
+
+    article.attach(author, favorited)
 }

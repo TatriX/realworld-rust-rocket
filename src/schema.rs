@@ -7,8 +7,8 @@ table! {
         body -> Text,
         author -> Int4,
         tag_list -> Array<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
         favorites_count -> Int4,
     }
 }

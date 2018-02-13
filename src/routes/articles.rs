@@ -4,6 +4,7 @@ use validator::{Validate, ValidationErrors};
 use db;
 use errors::Errors;
 use util::extract_string;
+use db::articles::FindArticles;
 
 #[derive(Deserialize)]
 struct NewArticle {
@@ -55,25 +56,29 @@ fn post_articles(
     Ok(Json(json!({ "article": article })))
 }
 
-#[derive(FromForm)]
-struct ListArticles {
-    tag: Option<String>,
-    author: Option<String>,
-    favorited: Option<String>,
-    limit: Option<u32>,
-    offset: Option<u32>,
+/// return multiple articles, ordered by most recent first
+#[get("/articles")]
+fn get_articles(conn: db::Conn) -> Json<Value> {
+    Json(json!({
+        "articles": db::articles::find(&conn, FindArticles::default())
+    }))
 }
 
 /// return multiple articles, ordered by most recent first
 #[get("/articles?<params>")]
-fn get_articles(params: ListArticles) -> Json<Value> {
-    // db::articles::find
-    Json(json!({"articles": []}))
+fn get_articles_with_params(params: FindArticles, conn: db::Conn) -> Json<Value> {
+    let articles = db::articles::find(&conn, params);
+    Json(json!({ "articles": articles, "articlesCount": articles.len() }))
 }
 
 #[get("/articles/<slug>")]
-fn get_article(slug: String, conn: db::Conn) -> Option<Json<Value>> {
-    db::articles::find(&conn, &slug).map(|article| Json(json!({ "article": article })))
+fn get_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+    db::articles::find_one(&conn, &slug, auth.id).map(|article| Json(json!({ "article": article })))
+}
+
+#[delete("/articles/<slug>")]
+fn delete_article(slug: String, conn: db::Conn) {
+    db::articles::delete(&conn, &slug);
 }
 
 #[derive(Deserialize)]
@@ -88,13 +93,14 @@ fn put_articles(
     auth: Auth,
     conn: db::Conn,
 ) -> Option<Json<Value>> {
-    db::articles::update(&conn, &slug, &article.article)
+    // TODO: check auth
+    db::articles::update(&conn, &slug, auth.id, &article.article)
         .map(|article| Json(json!({ "article": article })))
 }
 
 #[get("/articles/<slug>/comments")]
 fn get_articles_comments(slug: String) -> Json<Value> {
-    Json(json!({"comments": []}))
+    Json(json!({ "comments": [slug] }))
 }
 
 #[derive(FromForm)]

@@ -32,6 +32,7 @@ mod models;
 mod errors;
 mod auth;
 mod util;
+mod config;
 mod routes;
 
 use rocket_contrib::{Json, Value};
@@ -58,7 +59,9 @@ fn main() {
                 routes::articles::post_articles,
                 routes::articles::put_articles,
                 routes::articles::get_article,
+                routes::articles::delete_article,
                 routes::articles::get_articles,
+                routes::articles::get_articles_with_params,
                 routes::articles::get_articles_comments,
                 routes::articles::get_articles_feed,
                 routes::tags::get_tags

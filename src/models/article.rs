@@ -1,5 +1,6 @@
 use schema::articles;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
+use config::DATE_FORMAT;
 use models::user::User;
 
 #[derive(Queryable, Serialize)]
@@ -12,13 +13,13 @@ pub struct Article {
     pub body: String,
     pub author: i32,
     pub tag_list: Vec<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub favorites_count: i32,
 }
 
 impl Article {
-    pub fn attach(self, author: User) -> ArticleJson {
+    pub fn attach(self, author: User, favorited: bool) -> ArticleJson {
         ArticleJson {
             id: self.id,
             slug: self.slug,
@@ -27,9 +28,10 @@ impl Article {
             body: self.body,
             author,
             tag_list: self.tag_list,
-            created_at: self.created_at,
-            updated_at: self.updated_at,
+            created_at: self.created_at.format(DATE_FORMAT).to_string(),
+            updated_at: self.updated_at.format(DATE_FORMAT).to_string(),
             favorites_count: self.favorites_count,
+            favorited,
         }
     }
 }
@@ -44,7 +46,8 @@ pub struct ArticleJson {
     pub body: String,
     pub author: User,
     pub tag_list: Vec<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: String,
+    pub updated_at: String,
     pub favorites_count: i32,
+    pub favorited: bool,
 }
