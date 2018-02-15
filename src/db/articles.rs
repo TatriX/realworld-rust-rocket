@@ -104,7 +104,7 @@ pub fn find(conn: &PgConnection, params: FindArticles, user_id: i32) -> Vec<Arti
             .get_result::<i32>(conn)
             .expect("Cannot load favorited user id");
         query = query.filter(diesel::dsl::sql(&format!(
-            "article.id IN (SELECT favorites.article FROM favorites WHERE favorites.user = {})",
+            "articles.id IN (SELECT favorites.article FROM favorites WHERE favorites.user = {})",
             id
         )));
     }

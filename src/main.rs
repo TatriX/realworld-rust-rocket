@@ -66,7 +66,8 @@ fn main() {
                 routes::articles::get_articles_with_params,
                 routes::articles::get_articles_comments,
                 routes::articles::get_articles_feed,
-                routes::tags::get_tags
+                routes::tags::get_tags,
+                routes::profiles::get_profile,
             ],
         )
         .manage(pool)
