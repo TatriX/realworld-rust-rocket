@@ -60,6 +60,8 @@ fn main() {
                 routes::articles::put_articles,
                 routes::articles::get_article,
                 routes::articles::delete_article,
+                routes::articles::favorite_article,
+                routes::articles::unfavorite_article,
                 routes::articles::get_articles,
                 routes::articles::get_articles_with_params,
                 routes::articles::get_articles_comments,

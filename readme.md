@@ -6,6 +6,13 @@
 
 The project on the earliest stage possible.
 
+### Features
+To use random suffixes for articles, compile with `random_suffix` feature.
+```sh
+cargo run --feature random_suffix
+
+```
+
 
 ### [Demo](https://github.com/gothinkster/realworld)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
 
@@ -24,4 +31,3 @@ For more information on how to this works with other frontends/backends, head ov
 # Getting started
 
 > npm install, npm start, etc.
-

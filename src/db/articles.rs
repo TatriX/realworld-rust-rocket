@@ -53,7 +53,11 @@ pub fn create<'a>(
 }
 
 fn slugify(title: &str) -> String {
-    format!("{}-{}", slug::slugify(title), generate_suffix(SUFFIX_LEN))
+    if cfg!(feature = "random_suffix") {
+        format!("{}-{}", slug::slugify(title), generate_suffix(SUFFIX_LEN))
+    } else {
+        slug::slugify(title)
+    }
 }
 
 fn generate_suffix(len: usize) -> String {
@@ -73,10 +77,19 @@ pub struct FindArticles {
     offset: Option<i64>,
 }
 
-pub fn find(conn: &PgConnection, params: FindArticles) -> Vec<Article> {
+pub fn find(conn: &PgConnection, params: FindArticles, user_id: i32) -> Vec<ArticleJson> {
     let mut query = articles::table
-        .select(articles::all_columns)
         .inner_join(users::table)
+        .left_join(
+            favorites::table.on(articles::id
+                .eq(favorites::article)
+                .and(favorites::user.eq(user_id))),
+        )
+        .select((
+            articles::all_columns,
+            users::all_columns,
+            favorites::user.nullable().is_not_null(),
+        ))
         .into_boxed();
     if let Some(author) = params.author {
         query = query.filter(users::username.eq(author))
@@ -84,20 +97,29 @@ pub fn find(conn: &PgConnection, params: FindArticles) -> Vec<Article> {
     if let Some(tag) = params.tag {
         query = query.or_filter(articles::tag_list.contains(vec![tag]))
     }
-    if let Some(_favorited) = params.favorited {
-        unimplemented!();
+    if let Some(favorited) = params.favorited {
+        let id = users::table
+            .select(users::id)
+            .filter(users::username.eq(favorited))
+            .get_result::<i32>(conn)
+            .expect("Cannot load favorited user id");
+        query = query.filter(diesel::dsl::sql(&format!(
+            "article.id IN (SELECT favorites.article FROM favorites WHERE favorites.user = {})",
+            id
+        )));
     }
+    // println!("{}", diesel::debug_query(&query).to_string());
+
     let result = query
         .limit(params.limit.unwrap_or(DEFAULT_LIMIT))
         .offset(params.offset.unwrap_or(0))
-        .get_results::<Article>(conn);
-    match result {
-        Err(err) => {
-            println!("articles::find : {}", err);
-            vec![]
-        }
-        Ok(articles) => articles,
-    }
+        .load::<(Article, User, bool)>(conn)
+        .expect("Cannot load articles");
+
+    result
+        .into_iter()
+        .map(|(article, author, favorited)| article.attach(author, favorited))
+        .collect()
 }
 
 pub fn find_one(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
@@ -110,8 +132,42 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Article
             println!("articles::find_one: {}", err);
             None
         }
-        Ok(article) => Some(populate(conn, article, user_id)),
+        Ok(article) => {
+            let favorited = is_favorite(conn, &article, user_id);
+            Some(populate(conn, article, favorited))
+        }
     }
+}
+
+pub fn favorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
+    conn.transaction::<_, diesel::result::Error, _>(|| {
+        let article = diesel::update(articles::table.filter(articles::slug.eq(slug)))
+            .set(articles::favorites_count.eq(articles::favorites_count + 1))
+            .get_result::<Article>(conn)?;
+
+        diesel::insert_into(favorites::table)
+            .values((
+                favorites::user.eq(user_id),
+                favorites::article.eq(article.id),
+            ))
+            .execute(conn)?;
+
+        Ok(populate(conn, article, true))
+    }).map_err(|err| println!("articles::favorite: {}", err))
+        .ok()
+}
+
+pub fn unfavorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
+    conn.transaction::<_, diesel::result::Error, _>(|| {
+        let article = diesel::update(articles::table.filter(articles::slug.eq(slug)))
+            .set(articles::favorites_count.eq(articles::favorites_count - 1))
+            .get_result::<Article>(conn)?;
+
+        diesel::delete(favorites::table.find((user_id, article.id))).execute(conn)?;
+
+        Ok(populate(conn, article, false))
+    }).map_err(|err| println!("articles::unfavorite: {}", err))
+        .ok()
 }
 
 #[derive(Deserialize, AsChangeset, Default, Clone)]
@@ -142,7 +198,8 @@ pub fn update(
         .get_result(conn)
         .expect("Error loading article");
 
-    Some(populate(conn, article, user_id))
+    let favorited = is_favorite(conn, &article, user_id);
+    Some(populate(conn, article, favorited))
 }
 
 pub fn delete(conn: &PgConnection, slug: &str) {
@@ -152,18 +209,20 @@ pub fn delete(conn: &PgConnection, slug: &str) {
     }
 }
 
-fn populate(conn: &PgConnection, article: Article, user_id: i32) -> ArticleJson {
+fn is_favorite(conn: &PgConnection, article: &Article, user_id: i32) -> bool {
     use diesel::select;
     use diesel::dsl::exists;
 
+    select(exists(favorites::table.find((user_id, article.id))))
+        .get_result(conn)
+        .expect("Error loading favorited")
+}
+
+fn populate(conn: &PgConnection, article: Article, favorited: bool) -> ArticleJson {
     let author = users::table
         .find(article.author)
         .get_result::<User>(conn)
         .expect("Error loading author");
-
-    let favorited = select(exists(favorites::table.find((user_id, article.id))))
-        .get_result(conn)
-        .expect("Error loading favorited");
 
     article.attach(author, favorited)
 }
