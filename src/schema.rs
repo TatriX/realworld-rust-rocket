@@ -14,6 +14,17 @@ table! {
 }
 
 table! {
+    comments (id) {
+        id -> Int4,
+        body -> Text,
+        article -> Int4,
+        author -> Int4,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+table! {
     favorites (user, article) {
         user -> Int4,
         article -> Int4,
@@ -39,11 +50,14 @@ table! {
 }
 
 joinable!(articles -> users (author));
+joinable!(comments -> articles (article));
+joinable!(comments -> users (author));
 joinable!(favorites -> articles (article));
 joinable!(favorites -> users (user));
 
 allow_tables_to_appear_in_same_query!(
     articles,
+    comments,
     favorites,
     follows,
     users,

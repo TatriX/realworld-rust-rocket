@@ -107,9 +107,46 @@ fn put_articles(
         .map(|article| Json(json!({ "article": article })))
 }
 
+#[derive(Deserialize)]
+struct NewComment {
+    comment: NewCommentData,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct NewCommentData {
+    #[validate(length(min = "1"))]
+    body: Option<String>,
+}
+
+#[post("/articles/<slug>/comments", format = "application/json", data = "<new_comment>")]
+fn post_comment(
+    slug: String,
+    new_comment: Json<NewComment>,
+    auth: Auth,
+    conn: db::Conn,
+) -> Result<Json<Value>, Errors> {
+    let mut errors = Errors {
+        errors: new_comment
+            .comment
+            .validate()
+            .err()
+            .unwrap_or_else(ValidationErrors::new),
+    };
+
+    let body = extract_string(&new_comment.comment.body, "body", &mut errors);
+
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+
+    let comment = db::comments::create(&conn, auth.id, &slug, &body);
+    Ok(Json(json!({ "comment": comment })))
+}
+
 #[get("/articles/<slug>/comments")]
-fn get_articles_comments(slug: String) -> Json<Value> {
-    Json(json!({ "comments": [slug] }))
+fn get_comments(slug: String, conn: db::Conn) -> Json<Value> {
+    let comments = db::comments::find_by_slug(&conn, &slug);
+    Json(json!({ "comments": comments }))
 }
 
 #[derive(FromForm)]
