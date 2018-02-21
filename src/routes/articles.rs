@@ -58,25 +58,31 @@ fn post_articles(
 
 /// return multiple articles, ordered by most recent first
 #[get("/articles")]
-fn get_articles(auth: Auth, conn: db::Conn) -> Json<Value> {
+fn get_articles(auth: Option<Auth>, conn: db::Conn) -> Json<Value> {
     get_articles_with_params(FindArticles::default(), auth, conn)
 }
 
 /// return multiple articles, ordered by most recent first
 #[get("/articles?<params>")]
-fn get_articles_with_params(params: FindArticles, auth: Auth, conn: db::Conn) -> Json<Value> {
-    let articles = db::articles::find(&conn, params, auth.id);
+fn get_articles_with_params(
+    params: FindArticles,
+    auth: Option<Auth>,
+    conn: db::Conn,
+) -> Json<Value> {
+    let user_id = auth.map(|x| x.id);
+    let articles = db::articles::find(&conn, params, user_id);
     Json(json!({ "articles": articles, "articlesCount": articles.len() }))
 }
 
 #[get("/articles/<slug>")]
-fn get_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
-    db::articles::find_one(&conn, &slug, auth.id).map(|article| Json(json!({ "article": article })))
+fn get_article(slug: String, auth: Option<Auth>, conn: db::Conn) -> Option<Json<Value>> {
+    let user_id = auth.map(|x| x.id);
+    db::articles::find_one(&conn, &slug, user_id).map(|article| Json(json!({ "article": article })))
 }
 
 #[delete("/articles/<slug>")]
-fn delete_article(slug: String, conn: db::Conn) {
-    db::articles::delete(&conn, &slug);
+fn delete_article(slug: String, auth: Auth, conn: db::Conn) {
+    db::articles::delete(&conn, &slug, auth.id);
 }
 
 #[post("/articles/<slug>/favorite")]

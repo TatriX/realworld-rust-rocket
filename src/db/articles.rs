@@ -77,13 +77,13 @@ pub struct FindArticles {
     offset: Option<i64>,
 }
 
-pub fn find(conn: &PgConnection, params: FindArticles, user_id: i32) -> Vec<ArticleJson> {
+pub fn find(conn: &PgConnection, params: FindArticles, user_id: Option<i32>) -> Vec<ArticleJson> {
     let mut query = articles::table
         .inner_join(users::table)
         .left_join(
             favorites::table.on(articles::id
                 .eq(favorites::article)
-                .and(favorites::user.eq(user_id))),
+                .and(favorites::user.eq(user_id.unwrap_or(0)))), // TODO: refactor
         )
         .select((
             articles::all_columns,
@@ -98,15 +98,22 @@ pub fn find(conn: &PgConnection, params: FindArticles, user_id: i32) -> Vec<Arti
         query = query.or_filter(articles::tag_list.contains(vec![tag]))
     }
     if let Some(favorited) = params.favorited {
-        let id = users::table
+        let result = users::table
             .select(users::id)
             .filter(users::username.eq(favorited))
-            .get_result::<i32>(conn)
-            .expect("Cannot load favorited user id");
-        query = query.filter(diesel::dsl::sql(&format!(
-            "articles.id IN (SELECT favorites.article FROM favorites WHERE favorites.user = {})",
-            id
-        )));
+            .get_result::<i32>(conn);
+        match result {
+            Ok(id) => {
+                query = query.filter(diesel::dsl::sql(&format!(
+                    "articles.id IN (SELECT favorites.article FROM favorites WHERE favorites.user = {})",
+                    id
+                )));
+            }
+            Err(err) => match err {
+                diesel::result::Error::NotFound => return vec![],
+                _ => panic!("Cannot load favorited user: {}", err),
+            },
+        }
     }
     // println!("{}", diesel::debug_query(&query).to_string());
 
@@ -122,7 +129,7 @@ pub fn find(conn: &PgConnection, params: FindArticles, user_id: i32) -> Vec<Arti
         .collect()
 }
 
-pub fn find_one(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
+pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option<ArticleJson> {
     let result = articles::table
         .filter(articles::slug.eq(slug))
         .first::<Article>(conn);
@@ -133,7 +140,10 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Article
             None
         }
         Ok(article) => {
-            let favorited = is_favorite(conn, &article, user_id);
+            let favorited = match user_id {
+                Some(user_id) => is_favorite(conn, &article, user_id),
+                None => false,
+            };
             Some(populate(conn, article, favorited))
         }
     }
@@ -202,8 +212,10 @@ pub fn update(
     Some(populate(conn, article, favorited))
 }
 
-pub fn delete(conn: &PgConnection, slug: &str) {
-    let result = diesel::delete(articles::table.filter(articles::slug.eq(slug))).execute(conn);
+pub fn delete(conn: &PgConnection, slug: &str, user_id: i32) {
+    let result = diesel::delete(
+        articles::table.filter(articles::slug.eq(slug).and(articles::author.eq(user_id))),
+    ).execute(conn);
     if let Err(err) = result {
         println!("articles::delete: {}", err);
     }
