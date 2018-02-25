@@ -13,12 +13,7 @@ pub struct NewUser<'a> {
     pub hash: &'a str,
 }
 
-pub fn create<'a>(
-    conn: &PgConnection,
-    username: &'a str,
-    email: &'a str,
-    password: &'a str,
-) -> User {
+pub fn create(conn: &PgConnection, username: &str, email: &str, password: &str) -> User {
     // see https://blog.filippo.io/the-scrypt-parameters
     let hash = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
 

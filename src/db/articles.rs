@@ -23,13 +23,13 @@ struct NewArticle<'a> {
     tag_list: &'a Vec<String>,
 }
 
-pub fn create<'a>(
+pub fn create(
     conn: &PgConnection,
     author: i32,
-    title: &'a str,
-    description: &'a str,
-    body: &'a str,
-    tag_list: &'a Vec<String>,
+    title: &str,
+    description: &str,
+    body: &str,
+    tag_list: &Vec<String>,
 ) -> ArticleJson {
     let new_article = &NewArticle {
         title,

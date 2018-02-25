@@ -15,7 +15,7 @@ struct NewComment<'a> {
     article: i32,
 }
 
-pub fn create<'a>(conn: &PgConnection, author: i32, slug: &'a str, body: &'a str) -> CommentJson {
+pub fn create(conn: &PgConnection, author: i32, slug: &str, body: &str) -> CommentJson {
     let article_id = articles::table
         .select(articles::id)
         .filter(articles::slug.eq(slug))
@@ -54,7 +54,7 @@ pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
         .collect()
 }
 
-pub fn delete<'a>(conn: &PgConnection, author: i32, slug: &'a str, comment_id: i32) {
+pub fn delete(conn: &PgConnection, author: i32, slug: &str, comment_id: i32) {
     use diesel::select;
     use diesel::dsl::exists;
 
