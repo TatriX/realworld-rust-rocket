@@ -67,6 +67,7 @@ fn main() {
                 routes::articles::get_articles_feed,
                 routes::articles::post_comment,
                 routes::articles::get_comments,
+                routes::articles::delete_comment,
                 routes::tags::get_tags,
                 routes::profiles::get_profile,
             ],

@@ -149,6 +149,11 @@ fn post_comment(
     Ok(Json(json!({ "comment": comment })))
 }
 
+#[delete("/articles/<slug>/comments/<id>")]
+fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
+    db::comments::delete(&conn, auth.id, &slug, id);
+}
+
 #[get("/articles/<slug>/comments")]
 fn get_comments(slug: String, conn: db::Conn) -> Json<Value> {
     let comments = db::comments::find_by_slug(&conn, &slug);

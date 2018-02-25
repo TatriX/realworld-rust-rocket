@@ -53,3 +53,24 @@ pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
         .map(|(comment, author)| comment.attach(author))
         .collect()
 }
+
+pub fn delete<'a>(conn: &PgConnection, author: i32, slug: &'a str, comment_id: i32) {
+    use diesel::select;
+    use diesel::dsl::exists;
+
+    let belongs_to_author_result = select(exists(
+        articles::table.filter(articles::slug.eq(slug).and(articles::author.eq(author))),
+    )).get_result::<bool>(conn);
+
+    if let Err(err) = belongs_to_author_result {
+        match err {
+            diesel::result::Error::NotFound => return,
+            _ => panic!("Cannot find article by author: {}", err),
+        }
+    }
+
+    let result = diesel::delete(comments::table.filter(comments::id.eq(comment_id))).execute(conn);
+    if let Err(err) = result {
+        println!("comments::delete: {}", err);
+    }
+}
