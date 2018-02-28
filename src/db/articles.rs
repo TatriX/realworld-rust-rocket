@@ -238,3 +238,10 @@ fn populate(conn: &PgConnection, article: Article, favorited: bool) -> ArticleJs
 
     article.attach(author, favorited)
 }
+
+pub fn tags(conn: &PgConnection) -> Vec<String> {
+    articles::table
+        .select(diesel::dsl::sql("distinct unnest(tag_list)"))
+        .load::<String>(conn)
+        .expect("Cannot load tags")
+}
