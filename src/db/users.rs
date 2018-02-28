@@ -67,19 +67,6 @@ pub fn find(conn: &PgConnection, id: i32) -> Option<User> {
     }
 }
 
-pub fn find_by_name(conn: &PgConnection, name: &str) -> Option<User> {
-    let result = users::table
-        .filter(users::username.eq(name))
-        .get_result::<User>(conn);
-    match result {
-        Err(err) => {
-            println!("find_user_by_name: {}", err);
-            None
-        }
-        Ok(user) => Some(user),
-    }
-}
-
 // TODO: remove clone when diesel will allow skipping fields
 #[derive(Deserialize, AsChangeset, Default, Clone)]
 #[table_name = "users"]

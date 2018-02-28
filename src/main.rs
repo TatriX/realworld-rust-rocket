@@ -70,6 +70,8 @@ fn main() {
                 routes::articles::delete_comment,
                 routes::tags::get_tags,
                 routes::profiles::get_profile,
+                routes::profiles::follow,
+                routes::profiles::unfollow,
             ],
         )
         .manage(pool)

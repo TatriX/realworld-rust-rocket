@@ -1,25 +1,24 @@
 use rocket_contrib::{Json, Value};
 use auth::Auth;
 use db;
+use models::user::Profile;
 
-#[derive(Serialize)]
-struct Profile {
-    username: String,
-    bio: Option<String>,
-    image: Option<String>,
-    following: bool,
+fn to_profile_json(profile: Profile) -> Json<Value> {
+    Json(json!({ "profile": profile }))
 }
 
 #[get("/profiles/<username>")]
 fn get_profile(username: String, auth: Option<Auth>, conn: db::Conn) -> Option<Json<Value>> {
-    db::users::find_by_name(&conn, &username).map(|user| {
-        Json(json!({
-            "profile": Profile{
-                username: user.username,
-                bio: user.bio,
-                image: user.image,
-                following: false, //TODO: get following
-            }
-        }))
-    })
+    let user_id = auth.map(|auth| auth.id);
+    db::profiles::find(&conn, &username, user_id).map(to_profile_json)
+}
+
+#[post("/profiles/<username>/follow")]
+fn follow(username: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+    db::profiles::follow(&conn, &username, auth.id).map(to_profile_json)
+}
+
+#[delete("/profiles/<username>/follow")]
+fn unfollow(username: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+    db::profiles::unfollow(&conn, &username, auth.id).map(to_profile_json)
 }
