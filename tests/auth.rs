@@ -33,17 +33,25 @@ fn post(path: &str, json: Value) -> reqwest::Response {
 
 #[test]
 fn register() {
-    let mut resp: reqwest::Response = post(
+    let mut resp = post(
         "users",
         json! ({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}),
     );
     let status = resp.status();
     match status {
         reqwest::StatusCode::Ok => {
-            // everything is fine
+            let wrapper = resp.json::<Value>().expect("Can't parse user");
+            let user = wrapper.get("user").expect("Must have a 'user' field");
+
+            assert_eq!(user.get("email").expect("User has email"), EMAIL);
+            assert_eq!(user.get("username").expect("User has username"), USERNAME);
+            assert!(user.get("bio").is_some());
+            assert!(user.get("image").is_some());
+            assert!(user.get("token").is_some());
         }
         reqwest::StatusCode::UnprocessableEntity => {
-            let body = resp.json::<ValidationErrors>().unwrap();
+            let body = resp.json::<ValidationErrors>()
+                .expect("Can't parse validation errors");
             if body.errors["username"] != vec!["has already been taken"] {
                 panic!("Got validation errors: {:#?}", body);
             }
