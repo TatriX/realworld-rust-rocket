@@ -77,65 +77,77 @@ fn check_user_response(resp: &mut Response) {
     assert!(user.get("token").is_some());
 }
 
-fn register() {
-    let mut resp = post(
-        "users",
-        json! ({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}),
-    );
-    let status = resp.status();
-    match status {
-        reqwest::StatusCode::Ok => check_user_response(&mut resp),
-        reqwest::StatusCode::UnprocessableEntity => {
-            let body = resp.json::<ValidationErrors>()
-                .expect("Can't parse validation errors");
-            if body.errors["username"] != vec!["has already been taken"] {
-                panic!("Got validation errors: {:#?}", body);
+// Run with:
+// cargo test -- --test-threads=1
+//
+// We need to run the tests in order. It seems that default test
+// harness run then in alpabet order, so I use letter as module names
+// here.
+
+mod a {
+    use super::*;
+
+    #[test]
+    fn register() {
+        let mut resp = post(
+            "users",
+            json! ({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}),
+        );
+        let status = resp.status();
+        match status {
+            reqwest::StatusCode::Ok => check_user_response(&mut resp),
+            reqwest::StatusCode::UnprocessableEntity => {
+                let body = resp.json::<ValidationErrors>()
+                    .expect("Can't parse validation errors");
+                if body.errors["username"] != vec!["has already been taken"] {
+                    panic!("Got validation errors: {:#?}", body);
+                }
             }
+            _ => panic!("Got status: {}", status),
         }
-        _ => panic!("Got status: {}", status),
     }
 }
 
-fn login() {
-    check_response(
-        &mut post(
-            "users/login",
-            json!({"user": {"email": EMAIL, "password": PASSWORD}}),
-        ),
-        check_user_response,
-    );
+mod b {
+    use super::*;
+
+    #[test]
+    fn login() {
+        check_response(
+            &mut post(
+                "users/login",
+                json!({"user": {"email": EMAIL, "password": PASSWORD}}),
+            ),
+            check_user_response,
+        );
+    }
+
+    #[test]
+    fn login_and_save_credentials() {
+        check_response(
+            &mut post(
+                "users/login",
+                json!({"user": {"email": EMAIL, "password": PASSWORD}}),
+            ),
+            |resp| {
+                let wrapper = resp.json::<Value>().expect("Can't parse user");
+                let user = wrapper.get("user").expect("Must have a 'user' field");
+                let mut token = TOKEN.write().unwrap();
+                *token = user.get("token")
+                    .expect("User has token")
+                    .as_str()
+                    .expect("Token must be a string")
+                    .to_string();
+            },
+        );
+    }
 }
 
-fn login_and_save_credentials() {
-    check_response(
-        &mut post(
-            "users/login",
-            json!({"user": {"email": EMAIL, "password": PASSWORD}}),
-        ),
-        |resp| {
-            let wrapper = resp.json::<Value>().expect("Can't parse user");
-            let user = wrapper.get("user").expect("Must have a 'user' field");
-            let mut token = TOKEN.write().unwrap();
-            *token = user.get("token")
-                .expect("User has token")
-                .as_str()
-                .expect("Token must be a string")
-                .to_string();
-        },
-    );
-}
+mod c {
+    use super::*;
 
-fn current_user() {
-    check_response(&mut get("user"), check_user_response)
-}
-
-// We need to run the tests in order. And default test framework do
-// that in random order. So for now let's just run them from the
-// "main" test function.
-#[test]
-fn auth() {
-    register();
-    login();
-    login_and_save_credentials();
-    current_user();
+    #[test]
+    fn current_user() {
+        check_response(&mut get("user"), check_user_response)
+    }
 }
