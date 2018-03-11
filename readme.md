@@ -26,8 +26,12 @@ For more information on how to this works with other frontends/backends, head ov
 
 # How it works
 
-> Describe the general architecture of your app here
+
+```sh
+cargo run
+cargo test -- --test-threads=1
+```
 
 # Getting started
 
-> npm install, npm start, etc.
+Install [nightly](https://www.rust-lang.org/en-US/install.html)

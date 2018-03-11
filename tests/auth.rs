@@ -84,7 +84,7 @@ fn check_user_response(resp: &mut Response) {
 // harness run then in alpabet order, so I use letter as module names
 // here.
 
-mod a {
+mod a_auth {
     use super::*;
 
     #[test]
@@ -108,7 +108,7 @@ mod a {
     }
 }
 
-mod b {
+mod b_auth {
     use super::*;
 
     #[test]
@@ -143,7 +143,7 @@ mod b {
     }
 }
 
-mod c {
+mod c_auth {
     use super::*;
 
     #[test]
