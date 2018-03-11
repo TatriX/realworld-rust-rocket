@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use schema::articles;
 use schema::users;
 use schema::favorites;
+use schema::follows;
 use diesel::pg::PgConnection;
 use models::article::{Article, ArticleJson};
 use models::user::User;
@@ -147,6 +148,42 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option
             Some(populate(conn, article, favorited))
         }
     }
+}
+
+#[derive(FromForm, Default)]
+pub struct FeedArticles {
+    limit: Option<i64>,
+    offset: Option<i64>,
+}
+
+// select * from articles where author in (select followed from follows where follower = 7);
+pub fn feed(conn: &PgConnection, params: FeedArticles, user_id: i32) -> Vec<ArticleJson> {
+    articles::table
+        .filter(
+            articles::author.eq_any(
+                follows::table
+                    .select(follows::followed)
+                    .filter(follows::follower.eq(user_id)),
+            ),
+        )
+        .inner_join(users::table)
+        .left_join(
+            favorites::table.on(articles::id
+                .eq(favorites::article)
+                .and(favorites::user.eq(user_id))),
+        )
+        .select((
+            articles::all_columns,
+            users::all_columns,
+            favorites::user.nullable().is_not_null(),
+        ))
+        .limit(params.limit.unwrap_or(DEFAULT_LIMIT))
+        .offset(params.offset.unwrap_or(0))
+        .load::<(Article, User, bool)>(conn)
+        .expect("Cannot load feed")
+        .into_iter()
+        .map(|(article, author, favorited)| article.attach(author, favorited))
+        .collect()
 }
 
 pub fn favorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {

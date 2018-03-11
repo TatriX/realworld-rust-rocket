@@ -4,7 +4,7 @@ use validator::{Validate, ValidationErrors};
 use db;
 use errors::Errors;
 use util::extract_string;
-use db::articles::FindArticles;
+use db::articles::{FeedArticles, FindArticles};
 
 #[derive(Deserialize)]
 struct NewArticle {
@@ -160,13 +160,8 @@ fn get_comments(slug: String, conn: db::Conn) -> Json<Value> {
     Json(json!({ "comments": comments }))
 }
 
-#[derive(FromForm)]
-struct FeedArticles {
-    limit: Option<u32>,
-    offset: Option<u32>,
-}
-
 #[get("/articles/feed?<params>")]
-fn get_articles_feed(params: FeedArticles) -> Json<Value> {
-    Json(json!({"articles": []}))
+fn get_articles_feed(params: FeedArticles, auth: Auth, conn: db::Conn) -> Json<Value> {
+    let articles = db::articles::feed(&conn, params, auth.id);
+    Json(json!({ "articles": articles }))
 }

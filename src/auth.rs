@@ -4,6 +4,8 @@ use rocket::request::{self, FromRequest, Request};
 use jwt;
 use serde_json;
 
+use config;
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {
     /// timestamp
@@ -17,12 +19,14 @@ impl Auth {
     pub fn token(&self) -> String {
         let header = json!({});
         let payload = json!(self);
-        jwt::encode(header, &SECRET.to_string(), &payload, jwt::Algorithm::HS256).expect("jwt")
+        jwt::encode(
+            header,
+            &config::SECRET.to_string(),
+            &payload,
+            jwt::Algorithm::HS256,
+        ).expect("jwt")
     }
 }
-
-const SECRET: &'static str = "secret123";
-const TOKEN_PREFIX: &'static str = "Token ";
 
 impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     type Error = ();
@@ -41,7 +45,7 @@ fn extract_auth_from_request(request: &Request) -> Option<Auth> {
     if let Some(token) = header.and_then(extract_token_from_header) {
         match jwt::decode(
             &token.to_string(),
-            &SECRET.to_string(),
+            &config::SECRET.to_string(),
             jwt::Algorithm::HS256,
         ) {
             Err(err) => {
@@ -57,8 +61,8 @@ fn extract_auth_from_request(request: &Request) -> Option<Auth> {
 }
 
 fn extract_token_from_header(header: &str) -> Option<&str> {
-    if header.starts_with(TOKEN_PREFIX) {
-        Some(&header[TOKEN_PREFIX.len()..])
+    if header.starts_with(config::TOKEN_PREFIX) {
+        Some(&header[config::TOKEN_PREFIX.len()..])
     } else {
         None
     }

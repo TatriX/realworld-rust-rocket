@@ -1,5 +1,4 @@
 use rocket_contrib::{Json, Value};
-use db::Conn;
 use db;
 
 #[get("/tags")]

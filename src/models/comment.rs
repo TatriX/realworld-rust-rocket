@@ -1,4 +1,3 @@
-use schema::articles;
 use chrono::{DateTime, Utc};
 use config::DATE_FORMAT;
 use models::user::User;

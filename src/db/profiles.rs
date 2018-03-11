@@ -41,8 +41,8 @@ pub fn follow(conn: &PgConnection, followed_name: &str, follower_id: i32) -> Opt
 
     diesel::insert_into(follows::table)
         .values((
-            follows::follower.eq(followed.id),
-            follows::followed.eq(follower_id),
+            follows::followed.eq(followed.id),
+            follows::follower.eq(follower_id),
         ))
         .execute(conn)
         .expect("Cannot follow");
@@ -56,7 +56,7 @@ pub fn unfollow(conn: &PgConnection, followed_name: &str, follower_id: i32) -> O
         .get_result::<User>(conn)
         .expect("Cannot load followed");
 
-    diesel::delete(follows::table.find((followed.id, follower_id)))
+    diesel::delete(follows::table.find((follower_id, followed.id)))
         .execute(conn)
         .expect("Cannot unfollow");
 
