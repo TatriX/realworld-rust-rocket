@@ -2,18 +2,14 @@ language: rust
 rust: nightly
 cache: cargo
 
-env:
-  - RUST_BACKTRACE=1
-
 services:
-  - mysql
+  - postgresql
 
 before_install:
-  - mysql < init.sql
+  - pqsl -U postgres -f init.sql
 
 before_script: 
   - cargo run & sleep 60
   - curl 'http://localhost:8000/api/tags'
 
 script: cargo test -- --test-threads=1
-
