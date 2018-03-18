@@ -2,6 +2,9 @@ language: rust
 rust: nightly
 cache: cargo
 
-before_script: cargo run & sleep 5
+before_script: 
+  - cargo run & sleep 5
+  - curl 'http://localhost:8000/api/tags'
+
 script: cargo test -- --test-threads=1
 
