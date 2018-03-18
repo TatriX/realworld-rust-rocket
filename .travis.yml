@@ -7,7 +7,7 @@ services:
 
 before_install:
   - psql -U postgres -f init.sql
-  - cargo uninstall diesel_cli && cargo install diesel_cli
+  - cargo install --force diesel_cli
   - diesel migration run
 
 before_script: 
