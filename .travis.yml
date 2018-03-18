@@ -3,7 +3,7 @@ rust: nightly
 cache: cargo
 
 before_script: 
-  - cargo run & sleep 5
+  - cargo run & sleep 60
   - curl 'http://localhost:8000/api/tags'
 
 script: cargo test -- --test-threads=1
