@@ -8,6 +8,10 @@ services:
 before_install:
   - psql -U postgres -f init.sql
 
+after_install:
+  - cargo install diesel_cli
+  - diesel migration run
+
 before_script: 
   - cargo run & sleep 60
 
