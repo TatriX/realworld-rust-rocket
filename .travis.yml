@@ -6,7 +6,7 @@ services:
   - postgresql
 
 before_install:
-  - pqsl -U postgres -f init.sql
+  - psql -U postgres -f init.sql
 
 before_script: 
   - cargo run & sleep 60
