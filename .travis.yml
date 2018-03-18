@@ -1,0 +1,17 @@
+language: rust
+rust: nightly
+cache: cargo
+
+services:
+  - postgresql
+
+before_install:
+  - psql -U postgres -f init.sql
+  - cargo uninstall diesel_cli && cargo install diesel_cli
+  - diesel migration run
+
+before_script: 
+  - cargo run & sleep 60
+  - curl 'http://localhost:8000/api/tags'
+
+script: cargo test -- --test-threads=1
