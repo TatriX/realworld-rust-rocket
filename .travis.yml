@@ -2,6 +2,12 @@ language: rust
 rust: nightly
 cache: cargo
 
+services:
+  - mysql
+
+before_install:
+  - mysql -u  travis -p '' < init.sql
+
 before_script: 
   - cargo run & sleep 60
   - curl 'http://localhost:8000/api/tags'
