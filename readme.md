@@ -20,6 +20,11 @@ curl https://sh.rustup.rs -sSf | sh
 rustup install nightly
 rustup default nightly
 
+# start postgresql and seed the database
+psql -f init.sql
+cargo install diesel_cli
+diesel migration run
+
 cargo run
 # from another term or use postman
 cargo test -- --test-threads=1
