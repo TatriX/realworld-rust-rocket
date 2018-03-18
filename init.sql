@@ -1,5 +1,3 @@
-
+CREATE USER realworld WITH PASSWORD 'realworld';
 CREATE DATABASE realworld;
-USE realworld;
-CREATE USER realworld IDENTIFIED BY 'realworld';
-GRANT ALL ON realworld TO realworld;
+GRANT ALL PRIVILEGES ON DATABASE realworld TO realworld;
