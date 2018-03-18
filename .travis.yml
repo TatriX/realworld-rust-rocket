@@ -5,13 +5,18 @@ cache: cargo
 services:
   - postgresql
 
+## Provision database
 before_install:
   - psql -U postgres -f init.sql
   - cargo install --force diesel_cli
   - diesel migration run
 
+## Start backend and wait until it comes up
 before_script: 
-  - cargo run & sleep 60
+  - export RUNLOGFILE=`mktemp`
+  - cargo run 2>&1 | tee $RUNLOGFILE &
+  - until grep -m1 -q 'Rocket has launched' $RUNLOGFILE; do sleep 1; done
+  - sleep 10
   - curl 'http://localhost:8000/api/tags'
 
 script: cargo test -- --test-threads=1
