@@ -1,2 +1,7 @@
 language: rust
 rust: nightly
+cache: cargo
+
+before_script: cargo run & sleep 5
+script: cargo test -- --test-threads=1
+
