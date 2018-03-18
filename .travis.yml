@@ -6,7 +6,7 @@ services:
   - mysql
 
 before_install:
-  - mysql -u  travis -p '' < init.sql
+  - mysql < init.sql
 
 before_script: 
   - cargo run & sleep 60
