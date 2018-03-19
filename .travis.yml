@@ -6,12 +6,17 @@ services:
   - postgresql
 
 before_install:
+  - ## Provision database
   - psql -U postgres -f init.sql
-  - cargo uninstall diesel_cli && cargo install diesel_cli
+  - command -v diesel || cargo install --force diesel_cli
   - diesel migration run
 
-before_script: 
-  - cargo run & sleep 60
+before_script:
+  - ## Start backend server and wait until it comes up
+  - export RUNLOGFILE=`mktemp`
+  - cargo run 2>&1 | tee $RUNLOGFILE &
+  - until grep -m1 -q 'Rocket has launched' $RUNLOGFILE; do sleep 1; done
+  - sleep 10
   - curl 'http://localhost:8000/api/tags'
 
 script: cargo test -- --test-threads=1
