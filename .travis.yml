@@ -19,4 +19,7 @@ before_script:
   - sleep 10
   - curl 'http://localhost:8000/api/tags'
 
-script: cargo test -- --test-threads=1
+script:
+  - cargo test -- --test-threads=1
+  - npm install -g newman
+  - cd tests/ && ./test.sh

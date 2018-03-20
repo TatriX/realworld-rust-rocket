@@ -1,1866 +1,1355 @@
 {
-	"variables": [],
-	"info": {
-		"name": "Conduit",
-		"_postman_id": "181332f2-6386-30d4-bfe7-2805fc53b3a0",
-		"description": "Collection for testing the Conduit API\n\nhttps://github.com/gothinkster/realworld",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Auth",
-			"description": "",
-			"item": [
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
-									"",
-									"var user = responseJSON.user || {};",
-									"",
-									"tests['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"tests['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"tests['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"tests['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"tests['User has \"token\" property'] = user.hasOwnProperty('token');",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/users/login",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\", \"password\":\"{{PASSWORD}}\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Login and Remember Token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
-									"",
-									"var user = responseJSON.user || {};",
-									"",
-									"tests['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"tests['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"tests['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"tests['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"tests['User has \"token\" property'] = user.hasOwnProperty('token');",
-									"",
-									"if(tests['User has \"token\" property']){",
-									"    postman.setEnvironmentVariable('token', user.token);",
-									"}",
-									"",
-									"tests['Environment variable \"token\" has been set'] = environment.token === user.token;",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/users/login",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\", \"password\":\"{{PASSWORD}}\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (!(environment.isIntegrationTest)) {",
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
-									"",
-									"var user = responseJSON.user || {};",
-									"",
-									"tests['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"tests['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"tests['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"tests['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"tests['User has \"token\" property'] = user.hasOwnProperty('token');",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/users",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\", \"password\":\"{{PASSWORD}}\", \"username\":\"johnjacob\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Current User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
-									"",
-									"var user = responseJSON.user || {};",
-									"",
-									"tests['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"tests['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"tests['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"tests['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"tests['User has \"token\" property'] = user.hasOwnProperty('token');",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/user",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
-									"",
-									"var user = responseJSON.user || {};",
-									"",
-									"tests['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"tests['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"tests['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"tests['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"tests['User has \"token\" property'] = user.hasOwnProperty('token');",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/user",
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Articles",
-			"description": "",
-			"item": [
-				{
-					"name": "All Articles",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Author",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?author=johnjacob",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles Favorited by Username",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"    ",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?favorited=jane",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Tag",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?tag=dragons",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Single Article by slug",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Articles with authentication",
-			"description": "",
-			"item": [
-				{
-					"name": "Feed",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/feed",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "All Articles",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "All Articles with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Author",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?author=johnjacob",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Author with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?author=johnjacob",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles Favorited by Username",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"    ",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?favorited=jane",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles Favorited by Username with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"    ",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?favorited=jane",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Tag",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    tests['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    tests['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"        tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"        tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"        tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        tests['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles?tag=dragons",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Single Article by slug",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Create Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"article\":{\"title\":\"How to train your dragon\", \"description\":\"Ever wonder how?\", \"body\":\"Very carefully.\", \"tagList\":[\"dragons\",\"training\"]}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Article",
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon",
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Update Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (!(environment.isIntegrationTest)) {",
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon",
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"article\":{\"body\":\"With two hands\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Favorite Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests[\"Article's 'favorited' property is true\"] = article.favorited === true;",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"tests[\"Article's 'favoritesCount' property is greater than 0\"] = article.favoritesCount > 0;",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon/favorite",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Unfavorite Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"tests['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"tests['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"tests['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"tests['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"tests['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = new Date(article.createdAt).toISOString() === article.createdAt;",
-									"tests['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"tests['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = new Date(article.updatedAt).toISOString() === article.updatedAt;",
-									"tests['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"tests['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"tests['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"tests['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"tests['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"tests['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"tests['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"tests[\"Article's \\\"favorited\\\" property is true\"] = article.favorited === false;",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon/favorite",
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Comments",
-			"description": "",
-			"item": [
-				{
-					"name": "All Comments for Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"comments\" property'] = responseJSON.hasOwnProperty('comments');",
-									"",
-									"    if(responseJSON.comments.length){",
-									"        var comment = responseJSON.comments[0];",
-									"",
-									"        tests['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-									"        tests['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
-									"        tests['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
-									"        tests['\"createdAt\" property is an ISO 8601 timestamp'] = new Date(comment.createdAt).toISOString() === comment.createdAt;",
-									"        tests['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
-									"        tests['\"updatedAt\" property is an ISO 8601 timestamp'] = new Date(comment.updatedAt).toISOString() === comment.updatedAt;",
-									"        tests['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon/comments",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Create Comment for Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(responseBody);",
-									"",
-									"tests['Response contains \"comment\" property'] = responseJSON.hasOwnProperty('comment');",
-									"",
-									"var comment = responseJSON.comment || {};",
-									"",
-									"tests['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-									"tests['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
-									"tests['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
-									"tests['\"createdAt\" property is an ISO 8601 timestamp'] = new Date(comment.createdAt).toISOString() === comment.createdAt;",
-									"tests['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
-									"tests['\"updatedAt\" property is an ISO 8601 timestamp'] = new Date(comment.updatedAt).toISOString() === comment.updatedAt;",
-									"tests['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon/comments",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"comment\":{\"body\":\"Thank you so much!\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Comment for Article",
-					"request": {
-						"url": "{{apiUrl}}/articles/how-to-train-your-dragon/comments/1",
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Profiles",
-			"description": "",
-			"item": [
-				{
-					"name": "Profile",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (!(environment.isIntegrationTest)) {",
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    tests['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    tests['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    tests['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    tests['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"}",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/profiles/rick",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Follow Profile",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (!(environment.isIntegrationTest)) {",
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    tests['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    tests['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    tests['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    tests['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"    tests['Profile\\'s \"following\" property is true'] = profile.following === true;",
-									"}",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/profiles/rick/follow",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "Unfollow Profile",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (!(environment.isIntegrationTest)) {",
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"",
-									"    tests['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    tests['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    tests['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    tests['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    tests['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"    tests['Profile\\'s \"following\" property is false'] = profile.following === false;",
-									"}",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/profiles/rick/follow",
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Tags",
-			"description": "",
-			"item": [
-				{
-					"name": "All Tags",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = responseCode.code === 200;",
-									"",
-									"tests['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(responseBody);",
-									"    ",
-									"    tests['Response contains \"tags\" property'] = responseJSON.hasOwnProperty('tags');",
-									"    tests['\"tags\" property returned as array'] = Array.isArray(responseJSON.tags);",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"url": "{{apiUrl}}/tags",
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "05834ad8-9065-4e10-9e00-8c7ce56518aa",
+    "name": "Conduit Rust Rocket",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [{
+      "name": "Signup",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "id": "f5a8c45c-8e35-417d-900f-202930b26d05",
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "tests['should have user field'] = typeof(res.user) === 'object';",
+            "var user = res.user;",
+            "",
+            "var expectedUserFields = ['email', 'token', 'username', 'bio', 'image'];",
+            "expectedUserFields.forEach(function(key) {",
+            "    tests[`user should have ${key} field`] = (typeof(user[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct email'] = user.email == 'basicuser@mail.com';",
+            "tests['should have correct username'] = user.username == 'basicuser';",
+            "",
+            "wait(2000);",
+            "",
+            "function wait(ms){",
+            "   var start = new Date().getTime();",
+            "   var end = start;",
+            "   while(end < start + ms) {",
+            "     end = new Date().getTime();",
+            "  }",
+            "}"
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+          "key": "Content-Type",
+          "value": "application/json"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {\n    \"username\": \"basicuser\",\n    \"email\": \"basicuser@mail.com\",\n    \"password\": \"password\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/users",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup Another User",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "tests['should have user field'] = typeof(res.user) === 'object';",
+            "var user = res.user;",
+            "",
+            "var expectedUserFields = ['email', 'token', 'username', 'bio', 'image'];",
+            "expectedUserFields.forEach(function(key) {",
+            "    tests[`user should have ${key} field`] = (typeof(user[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct email'] = user.email == 'celebuser@mail.com';",
+            "tests['should have correct username'] = user.username == 'celebuser';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+          "key": "Content-Type",
+          "value": "application/json"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {\n    \"username\": \"celebuser\",\n    \"email\": \"celebuser@mail.com\",\n    \"password\": \"password\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/users",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "tests['should have user field'] = typeof(res.user) === 'object';",
+            "var user = res.user;",
+            "",
+            "var expectedUserFields = ['email', 'token', 'username', 'bio', 'image'];",
+            "expectedUserFields.forEach(function(key) {",
+            "    tests[`user should have ${key} field`] = (typeof(user[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct email'] = user.email == 'basicuser@mail.com';",
+            "tests['should have correct username'] = user.username == 'basicuser';",
+            "",
+            "pm.globals.unset('authToken');",
+            "pm.globals.set('authToken', user.token);",
+            "tests['global variable token should be set'] = pm.globals.get('authToken');",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+          "key": "Content-Type",
+          "value": "application/json"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {\n    \"email\": \"basicuser@mail.com\",\n    \"password\": \"password\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/users/login",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Authenticate",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "tests['should have user field'] = typeof(res.user) === 'object';",
+            "var user = res.user;",
+            "",
+            "var expectedUserFields = ['email', 'token', 'username', 'bio', 'image'];",
+            "expectedUserFields.forEach(function(key) {",
+            "    tests[`user should have ${key} field`] = (typeof(user[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct email'] = user.email == 'basicuser@mail.com';",
+            "tests['should have correct username'] = user.username == 'basicuser';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/user",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update User",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "tests['should have user field'] = typeof(res.user) === 'object';",
+            "var user = res.user;",
+            "",
+            "var expectedUserFields = ['email', 'token', 'username', 'bio', 'image'];",
+            "expectedUserFields.forEach(function(key) {",
+            "    tests[`user should have ${key} field`] = (typeof(user[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct email'] = user.email == 'newemail@mail.com';",
+            "tests['should have correct username'] = user.username == 'basicuser';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "PUT",
+        "header": [{
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {\n    \"email\": \"newemail@mail.com\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/user",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "404",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "id": "8ec92a62-198f-4d18-87b5-f7b61fa11564",
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 404'] = pm.response.code === 404;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/nopez",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "nopez"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Follow",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var profile = res.profile;",
+            "tests['should have profile field'] = typeof(profile) === 'object';",
+            "var expectedProfileFields = ['username', 'bio', 'image', 'following'];",
+            "expectedProfileFields.forEach(function(key) {",
+            "    tests[`profile should have ${key} field`] = (typeof(profile[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct username'] = profile.username === 'celebuser';",
+            "tests['should have correct following'] = profile.following === true;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/profiles/celebuser/follow",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "profiles",
+            "celebuser",
+            "follow"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var profile = res.profile;",
+            "tests['should have profile field'] = typeof(profile) === 'object';",
+            "var expectedProfileFields = ['username', 'bio', 'image', 'following'];",
+            "expectedProfileFields.forEach(function(key) {",
+            "    tests[`profile should have ${key} field`] = (typeof(profile[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct username'] = profile.username === 'celebuser';",
+            "tests['should have correct following'] = profile.following === true;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/profiles/celebuser",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "profiles",
+            "celebuser"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Unfollow",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var profile = res.profile;",
+            "tests['should have profile field'] = typeof(profile) === 'object';",
+            "var expectedProfileFields = ['username', 'bio', 'image', 'following'];",
+            "expectedProfileFields.forEach(function(key) {",
+            "    tests[`profile should have ${key} field`] = (typeof(profile[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct username'] = profile.username === 'celebuser';",
+            "tests['should have correct following'] = profile.following === false;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "DELETE",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/profiles/celebuser/follow",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "profiles",
+            "celebuser",
+            "follow"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var article = res.article;",
+            "tests['should have article field'] = typeof(article) === 'object';",
+            "",
+            "var expectedArticleFields = ['slug', 'title', 'description', 'body', 'tagList', 'createdAt', 'updatedAt', 'author', 'favorited', 'favoritesCount'];",
+            "expectedArticleFields.forEach(function(key) {",
+            "    tests[`article should have ${key} field`] = (typeof(article[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct title'] = article.title === 'How to train your dragon';",
+            "tests['should have correct decription'] = article.description === 'Ever wonder how?';",
+            "tests['should have correct body'] = article.body === 'You have to believe';",
+            "",
+            "var author = article.author;",
+            "tests['should have author field'] = typeof(author) === 'object';",
+            "var expectedAuthorFields = ['username', 'bio', 'image', 'following'];",
+            "expectedAuthorFields.forEach(function(key) {",
+            "    tests[`author should have ${key} field`] = (typeof(author[key]) !== 'undefined');",
+            "});",
+            "tests['author username should be correct'] = author.username === 'basicuser';",
+            "",
+            "pm.globals.unset('articleSlug');",
+            "pm.globals.set('articleSlug', article.slug);",
+            "tests['global variable articleSlug should be set'] = pm.globals.get('articleSlug');",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"article\": {\n    \"title\": \"How to train your dragon\",\n    \"description\": \"Ever wonder how?\",\n    \"body\": \"You have to believe\",\n    \"tagList\": [\"reactjs\", \"angularjs\", \"dragons\"]\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var article = res.article;",
+            "tests['should have article field'] = typeof(article) === 'object';",
+            "",
+            "var expectedArticleFields = ['slug', 'title', 'description', 'body', 'tagList', 'createdAt', 'updatedAt', 'author', 'favorited', 'favoritesCount'];",
+            "expectedArticleFields.forEach(function(key) {",
+            "    tests[`article should have ${key} field`] = (typeof(article[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct title'] = article.title === 'How to train your dragon';",
+            "tests['should have correct decription'] = article.description === 'Ever wonder how?';",
+            "tests['should have correct body'] = article.body === 'You have to believe';",
+            "",
+            "var author = article.author;",
+            "tests['should have author field'] = typeof(author) === 'object';",
+            "var expectedAuthorFields = ['username', 'bio', 'image', 'following'];",
+            "expectedAuthorFields.forEach(function(key) {",
+            "    tests[`author should have ${key} field`] = (typeof(author[key]) !== 'undefined');",
+            "});",
+            "tests['author username should be correct'] = author.username === 'basicuser';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var article = res.article;",
+            "tests['should have article field'] = typeof(article) === 'object';",
+            "",
+            "var expectedArticleFields = ['slug', 'title', 'description', 'body', 'tagList', 'createdAt', 'updatedAt', 'author', 'favorited', 'favoritesCount'];",
+            "expectedArticleFields.forEach(function(key) {",
+            "    tests[`article should have ${key} field`] = (typeof(article[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct title'] = article.title === 'new title';",
+            "tests['should have correct decription'] = article.description === 'new description';",
+            "tests['should have correct body'] = article.body === 'new body';",
+            "",
+            "var author = article.author;",
+            "tests['should have author field'] = typeof(author) === 'object';",
+            "var expectedAuthorFields = ['username', 'bio', 'image', 'following'];",
+            "expectedAuthorFields.forEach(function(key) {",
+            "    tests[`author should have ${key} field`] = (typeof(author[key]) !== 'undefined');",
+            "});",
+            "tests['author username should be correct'] = author.username === 'basicuser';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "PUT",
+        "header": [{
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"article\": {\n    \"title\": \"new title\",\n    \"description\": \"new description\",\n    \"body\": \"new body\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles Limit",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles?limit=1",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ],
+          "query": [{
+            "key": "limit",
+            "value": "1"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles Offset",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles?offset=1",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ],
+          "query": [{
+            "key": "offset",
+            "value": "1"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles by Tag",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles?tag=dragons",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ],
+          "query": [{
+            "key": "tag",
+            "value": "dragons"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles by Author",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles?author=basicuser",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ],
+          "query": [{
+            "key": "author",
+            "value": "basicuser"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Articles by Favorited",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles?favorited=basicuser",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles"
+          ],
+          "query": [{
+            "key": "favorited",
+            "value": "basicuser"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Feed",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/feed",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "feed"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Feed with Limit",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/feed?limit=1",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "feed"
+          ],
+          "query": [{
+            "key": "limit",
+            "value": "1"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Feed with Offset",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var articles = res.articles;",
+            "tests['should have articles field'] = typeof(articles) === 'object';",
+            "tests['should have articlesCount field'] = typeof(res.articlesCount) !== 'undefined';",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/feed?offset=1",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "feed"
+          ],
+          "query": [{
+            "key": "offset",
+            "value": "1"
+          }]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Comment",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "console.log(res);",
+            "var comment = res.comment;",
+            "tests['should have comment field'] = typeof(comment) === 'object';",
+            "",
+            "var expectedCommentFields = ['body', 'createdAt', 'updatedAt', 'author', 'id'];",
+            "expectedCommentFields.forEach(function(key) {",
+            "    tests[`comment should have ${key} field`] = (typeof(comment[key]) !== 'undefined');",
+            "});",
+            "tests['should have correct body'] = comment.body === 'His name was my name too.';",
+            "",
+            "var author = comment.author;",
+            "tests['should have author field'] = typeof(author) === 'object';",
+            "var expectedAuthorFields = ['username', 'bio', 'image', 'following'];",
+            "expectedAuthorFields.forEach(function(key) {",
+            "    tests[`author should have ${key} field`] = (typeof(author[key]) !== 'undefined');",
+            "});",
+            "tests['author username should be correct'] = author.username === 'basicuser';",
+            "",
+            "pm.globals.unset('commentId');",
+            "pm.globals.set('commentId', comment.id);",
+            "tests['global variable commentId should be set'] = pm.globals.get('commentId');",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"comment\": {\n    \"body\": \"His name was my name too.\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}/comments",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}",
+            "comments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Comments",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "var comments = res.comments;",
+            "tests['should have comments field'] = Array.isArray(comments);",
+            "",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}/comments",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}",
+            "comments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Comment",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "DELETE",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}/comments/{{commentId}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}",
+            "comments",
+            "{{commentId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Favorite Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "var article = res.article;",
+            "tests['should have article field'] = typeof(res.article) !== 'undefined';",
+            "tests['should be favorited'] = article.favorited === true;",
+            "tests['should have favoritesCount of one'] = article.favoritesCount === 1;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}/favorite",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}",
+            "favorite"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Unfavorite Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "var article = res.article;",
+            "tests['should have article field'] = typeof(res.article) !== 'undefined';",
+            "tests['should not be favorited'] = article.favorited === false;",
+            "tests['should have favoritesCount of zero'] = article.favoritesCount === 0;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "DELETE",
+        "header": [{
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}/favorite",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}",
+            "favorite"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Tags",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            "res = pm.response.json();",
+            "var tags = res.tags;",
+            "tests['should have tags field'] = typeof(tags) !== 'undefined';",
+            "tests['tags should be an array'] = Array.isArray(tags);",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/tags",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "tags"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Article",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "DELETE",
+        "header": [{
+          "key": "Authorization",
+          "value": "Token {{authToken}}"
+        }],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/articles/{{articleSlug}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "articles",
+            "{{articleSlug}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Clean Slate",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "tests['should have status 200'] = pm.response.code === 200;",
+            ""
+          ]
+        }
+      }],
+      "request": {
+        "method": "PURGE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{apiUrl}}/__DELETE_ALL_DATA__",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "__DELETE_ALL_DATA__"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }
