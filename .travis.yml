@@ -21,5 +21,5 @@ before_script:
 
 script:
   - cargo test -- --test-threads=1
-  - npm install -g newman
-  - cd tests/ && ./test.sh
+  # - npm install -g newman
+  # - cd tests/ && ./test.sh
