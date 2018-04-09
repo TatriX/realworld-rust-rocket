@@ -44,3 +44,7 @@ To use random suffixes for articles, compile with `random_suffix` feature.
 cargo run --feature random_suffix
 
 ```
+
+### TODO
+1. Use insert into table (...) select
+2. Error handling: either `failure` or `error_chain`
