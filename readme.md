@@ -24,7 +24,7 @@ rustup default nightly
 
 # start postgresql and seed the database
 psql -f init.sql
-cargo install diesel_cli
+cargo install diesel_cli --no-default-features --features "postgres"
 diesel migration run
 
 cargo run
