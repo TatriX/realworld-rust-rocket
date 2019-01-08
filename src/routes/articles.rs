@@ -1,4 +1,5 @@
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json::{Json, JsonValue};
+use rocket::request::Form;
 use auth::Auth;
 use validator::{Validate, ValidationErrors};
 use db;
@@ -7,7 +8,7 @@ use util::extract_string;
 use db::articles::{FeedArticles, FindArticles};
 
 #[derive(Deserialize)]
-struct NewArticle {
+pub struct NewArticle {
     article: NewArticleData,
 }
 
@@ -24,11 +25,11 @@ pub struct NewArticleData {
 }
 
 #[post("/articles", format = "application/json", data = "<new_article>")]
-fn post_articles(
+pub fn post_articles(
     auth: Auth,
     new_article: Json<NewArticle>,
     conn: db::Conn,
-) -> Result<Json<Value>, Errors> {
+) -> Result<Json<JsonValue>, Errors> {
     let mut errors = Errors {
         errors: new_article
             .article
@@ -57,64 +58,54 @@ fn post_articles(
 }
 
 /// return multiple articles, ordered by most recent first
-#[get("/articles")]
-fn get_articles(auth: Option<Auth>, conn: db::Conn) -> Json<Value> {
-    get_articles_with_params(FindArticles::default(), auth, conn)
-}
-
-/// return multiple articles, ordered by most recent first
-#[get("/articles?<params>")]
-fn get_articles_with_params(
-    params: FindArticles,
-    auth: Option<Auth>,
-    conn: db::Conn,
-) -> Json<Value> {
+#[get("/articles?<params..>")]
+pub fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, conn: db::Conn) -> Json<JsonValue> {
     let user_id = auth.map(|x| x.id);
-    let articles = db::articles::find(&conn, params, user_id);
+    let articles = db::articles::find(&conn, &params, user_id);
     Json(json!({ "articles": articles, "articlesCount": articles.len() }))
 }
 
 #[get("/articles/<slug>")]
-fn get_article(slug: String, auth: Option<Auth>, conn: db::Conn) -> Option<Json<Value>> {
+pub fn get_article(slug: String, auth: Option<Auth>, conn: db::Conn) -> Option<Json<JsonValue>> {
     let user_id = auth.map(|x| x.id);
     db::articles::find_one(&conn, &slug, user_id).map(|article| Json(json!({ "article": article })))
 }
 
 #[delete("/articles/<slug>")]
-fn delete_article(slug: String, auth: Auth, conn: db::Conn) {
+pub fn delete_article(slug: String, auth: Auth, conn: db::Conn) {
     db::articles::delete(&conn, &slug, auth.id);
 }
 
 #[post("/articles/<slug>/favorite")]
-fn favorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+pub fn favorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
     db::articles::favorite(&conn, &slug, auth.id).map(|article| Json(json!({ "article": article })))
 }
 
 #[delete("/articles/<slug>/favorite")]
-fn unfavorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+pub fn unfavorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
     db::articles::unfavorite(&conn, &slug, auth.id)
         .map(|article| Json(json!({ "article": article })))
 }
 
 #[derive(Deserialize)]
-struct UpdateArticle {
+pub struct UpdateArticle {
     article: db::articles::UpdateArticleData,
 }
 
 #[put("/articles/<slug>", format = "application/json", data = "<article>")]
-fn put_articles(
+pub fn put_articles(
     slug: String,
     article: Json<UpdateArticle>,
     auth: Auth,
     conn: db::Conn,
-) -> Option<Json<Value>> {
+) -> Option<Json<JsonValue>> {
     // TODO: check auth
     db::articles::update(&conn, &slug, auth.id, &article.article)
         .map(|article| Json(json!({ "article": article })))
 }
 
 #[derive(Deserialize)]
-struct NewComment {
+pub struct NewComment {
     comment: NewCommentData,
 }
 
@@ -125,12 +116,12 @@ pub struct NewCommentData {
 }
 
 #[post("/articles/<slug>/comments", format = "application/json", data = "<new_comment>")]
-fn post_comment(
+pub fn post_comment(
     slug: String,
     new_comment: Json<NewComment>,
     auth: Auth,
     conn: db::Conn,
-) -> Result<Json<Value>, Errors> {
+) -> Result<Json<JsonValue>, Errors> {
     let mut errors = Errors {
         errors: new_comment
             .comment
@@ -150,18 +141,18 @@ fn post_comment(
 }
 
 #[delete("/articles/<slug>/comments/<id>")]
-fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
+pub fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
     db::comments::delete(&conn, auth.id, &slug, id);
 }
 
 #[get("/articles/<slug>/comments")]
-fn get_comments(slug: String, conn: db::Conn) -> Json<Value> {
+pub fn get_comments(slug: String, conn: db::Conn) -> Json<JsonValue> {
     let comments = db::comments::find_by_slug(&conn, &slug);
     Json(json!({ "comments": comments }))
 }
 
-#[get("/articles/feed?<params>")]
-fn get_articles_feed(params: FeedArticles, auth: Auth, conn: db::Conn) -> Json<Value> {
-    let articles = db::articles::feed(&conn, params, auth.id);
+#[get("/articles/feed?<params..>")]
+pub fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, conn: db::Conn) -> Json<JsonValue> {
+    let articles = db::articles::feed(&conn, &params, auth.id);
     Json(json!({ "articles": articles }))
 }

@@ -2,7 +2,7 @@ use rocket::response::status;
 use rocket::request::Request;
 use rocket::http::Status;
 use rocket::response::{self, Responder};
-use rocket_contrib::Json;
+use rocket_contrib::json::Json;
 use validator::ValidationErrors;
 use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
@@ -17,7 +17,7 @@ impl<'r> Responder<'r> for Errors {
     fn respond_to(self, req: &Request) -> response::Result<'r> {
         // TODO: get rid of allocations
         let mut errors = HashMap::new();
-        for (field, ers) in self.errors.inner() {
+        for (field, ers) in self.errors.field_errors() {
             errors.insert(
                 field,
                 ers.into_iter()

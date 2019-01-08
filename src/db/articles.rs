@@ -8,7 +8,8 @@ use diesel::pg::PgConnection;
 use models::article::{Article, ArticleJson};
 use models::user::User;
 use slug;
-use rand::{self, Rng};
+use std::iter;
+use rand::{thread_rng, Rng, distributions::Alphanumeric};
 
 const SUFFIX_LEN: usize = 6;
 const DEFAULT_LIMIT: i64 = 20;
@@ -62,10 +63,8 @@ fn slugify(title: &str) -> String {
 }
 
 fn generate_suffix(len: usize) -> String {
-    rand::thread_rng()
-        .gen_ascii_chars()
-        .take(len)
-        .collect::<String>()
+    let mut rng = thread_rng();
+    iter::repeat(()).map(|()| rng.sample(Alphanumeric)).take(len).collect()
 }
 
 #[derive(FromForm, Default)]
@@ -78,7 +77,7 @@ pub struct FindArticles {
     offset: Option<i64>,
 }
 
-pub fn find(conn: &PgConnection, params: FindArticles, user_id: Option<i32>) -> Vec<ArticleJson> {
+pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) -> Vec<ArticleJson> {
     let mut query = articles::table
         .inner_join(users::table)
         .left_join(
@@ -92,13 +91,13 @@ pub fn find(conn: &PgConnection, params: FindArticles, user_id: Option<i32>) -> 
             favorites::user.nullable().is_not_null(),
         ))
         .into_boxed();
-    if let Some(author) = params.author {
+    if let Some(ref author) = params.author {
         query = query.filter(users::username.eq(author))
     }
-    if let Some(tag) = params.tag {
+    if let Some(ref tag) = params.tag {
         query = query.or_filter(articles::tag_list.contains(vec![tag]))
     }
-    if let Some(favorited) = params.favorited {
+    if let Some(ref favorited) = params.favorited {
         let result = users::table
             .select(users::id)
             .filter(users::username.eq(favorited))
@@ -157,7 +156,7 @@ pub struct FeedArticles {
 }
 
 // select * from articles where author in (select followed from follows where follower = 7);
-pub fn feed(conn: &PgConnection, params: FeedArticles, user_id: i32) -> Vec<ArticleJson> {
+pub fn feed(conn: &PgConnection, params: &FeedArticles, user_id: i32) -> Vec<ArticleJson> {
     articles::table
         .filter(
             articles::author.eq_any(
