@@ -1,7 +1,7 @@
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json::{Json, JsonValue};
 use db;
 
 #[get("/tags")]
-fn get_tags(conn: db::Conn) -> Json<Value> {
+pub fn get_tags(conn: db::Conn) -> Json<JsonValue> {
     Json(json!({ "tags": db::articles::tags(&conn) }))
 }

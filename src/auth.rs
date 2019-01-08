@@ -17,10 +17,10 @@ pub struct Auth {
 
 impl Auth {
     pub fn token(&self) -> String {
-        let header = json!({});
+        let headers = json!({});
         let payload = json!(self);
         jwt::encode(
-            header,
+            headers.0,
             &config::SECRET.to_string(),
             &payload,
             jwt::Algorithm::HS256,

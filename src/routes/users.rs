@@ -1,6 +1,6 @@
 use auth::Auth;
 use validator::{Validate, ValidationError, ValidationErrors};
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json::{Json, JsonValue};
 use db;
 use errors::Errors;
 use util::extract_string;
@@ -22,7 +22,7 @@ struct NewUserData {
 }
 
 #[post("/users", format = "application/json", data = "<new_user>")]
-pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>, Errors> {
+pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
     use schema::users;
 
     let mut errors = Errors {
@@ -55,7 +55,7 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<Value>
 }
 
 #[derive(Deserialize)]
-struct LoginUser {
+pub struct LoginUser {
     user: LoginUserData,
 }
 
@@ -66,7 +66,7 @@ struct LoginUserData {
 }
 
 #[post("/users/login", format = "application/json", data = "<user>")]
-fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>, Errors> {
+pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
     let mut errors = Errors::new();
     let email = extract_string(&user.user.email, "email", &mut errors);
     let password = extract_string(&user.user.password, "password", &mut errors);
@@ -80,17 +80,17 @@ fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Value>
 }
 
 #[get("/user")]
-fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+pub fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
     db::users::find(&conn, auth.id).map(|user| Json(json!({ "user": user.to_user_auth() })))
 }
 
 #[derive(Deserialize)]
-struct UpdateUser {
+pub struct UpdateUser {
     user: db::users::UpdateUserData,
 }
 
 #[put("/user", format = "application/json", data = "<user>")]
-fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<Value>> {
+pub fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
     db::users::update(&conn, auth.id, &user.user)
         .map(|user| Json(json!({ "user": user.to_user_auth() })))
 }

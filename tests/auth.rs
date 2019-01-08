@@ -8,12 +8,9 @@ extern crate serde_json;
 #[macro_use]
 extern crate lazy_static;
 
-extern crate hyper;
-
 use reqwest::Response;
 use serde_json::Value;
 use std::collections::HashMap;
-use hyper::header::{Authorization, Headers};
 use std::sync::RwLock;
 
 const API_URL: &'static str = "http://localhost:8000/api";
@@ -45,12 +42,10 @@ fn post(path: &str, json: Value) -> Response {
 
 fn get(path: &str) -> Response {
     let token = TOKEN.read().unwrap().to_string();
-    let mut headers = Headers::new();
-    headers.set(Authorization(format!("Token {}", token)));
 
     reqwest::Client::new()
         .get(&make_url(path))
-        .headers(headers)
+        .bearer_auth(token)
         .send()
         .expect(&format!("{} get error", path))
 }
@@ -61,7 +56,7 @@ where
 {
     let status = resp.status();
     match status {
-        reqwest::StatusCode::Ok => f(resp),
+        reqwest::StatusCode::OK => f(resp),
         _ => panic!("Got status: {}", status),
     }
 }
@@ -95,8 +90,8 @@ mod a_auth {
         );
         let status = resp.status();
         match status {
-            reqwest::StatusCode::Ok => check_user_response(&mut resp),
-            reqwest::StatusCode::UnprocessableEntity => {
+            reqwest::StatusCode::OK => check_user_response(&mut resp),
+            reqwest::StatusCode::UNPROCESSABLE_ENTITY => {
                 let body = resp.json::<ValidationErrors>()
                     .expect("Can't parse validation errors");
                 if body.errors["username"] != vec!["has already been taken"] {

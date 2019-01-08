@@ -1,10 +1,12 @@
-#![feature(plugin, custom_derive)]
-#![plugin(rocket_codegen)]
+#![feature(proc_macro_hygiene, decl_macro)]
+// silence diesel warning untill its new version is released
+#![allow(proc_macro_derive_resolution_fallback)]
 
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -35,10 +37,10 @@ mod util;
 mod config;
 mod routes;
 
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json::{Json, JsonValue};
 
-#[error(404)]
-fn not_found() -> Json<Value> {
+#[catch(404)]
+fn not_found() -> Json<JsonValue> {
     Json(json!({
         "status": "error",
         "reason": "Resource was not found."
@@ -63,7 +65,6 @@ fn main() {
                 routes::articles::favorite_article,
                 routes::articles::unfavorite_article,
                 routes::articles::get_articles,
-                routes::articles::get_articles_with_params,
                 routes::articles::get_articles_feed,
                 routes::articles::post_comment,
                 routes::articles::get_comments,
@@ -76,6 +77,6 @@ fn main() {
         )
         .manage(pool)
         .attach(rocket_cors::Cors::default())
-        .catch(errors![not_found])
+        .register(catchers![not_found])
         .launch();
 }
