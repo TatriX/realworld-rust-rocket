@@ -55,10 +55,4 @@ joinable!(comments -> users (author));
 joinable!(favorites -> articles (article));
 joinable!(favorites -> users (user));
 
-allow_tables_to_appear_in_same_query!(
-    articles,
-    comments,
-    favorites,
-    follows,
-    users,
-);
+allow_tables_to_appear_in_same_query!(articles, comments, favorites, follows, users,);

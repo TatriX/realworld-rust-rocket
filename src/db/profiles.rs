@@ -1,7 +1,7 @@
 use crate::schema::{follows, users};
 use diesel;
-use diesel::prelude::*;
 use diesel::pg::PgConnection;
+use diesel::prelude::*;
 
 use crate::models::user::{Profile, User};
 
@@ -25,8 +25,8 @@ pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Pro
 }
 
 fn is_following(conn: &PgConnection, user: &User, user_id: i32) -> bool {
-    use diesel::select;
     use diesel::dsl::exists;
+    use diesel::select;
 
     select(exists(follows::table.find((user_id, user.id))))
         .get_result(conn)

@@ -1,5 +1,5 @@
-use validator::ValidationError;
 use crate::errors::Errors;
+use validator::ValidationError;
 
 pub fn extract_string<'a>(
     maybe_string: &'a Option<String>,

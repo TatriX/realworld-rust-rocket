@@ -1,5 +1,5 @@
-use rocket::Outcome;
 use rocket::request::{self, FromRequest, Request};
+use rocket::Outcome;
 
 use crate::jwt;
 use serde_json;
@@ -24,7 +24,8 @@ impl Auth {
             &config::SECRET.to_string(),
             &payload,
             jwt::Algorithm::HS256,
-        ).expect("jwt")
+        )
+        .expect("jwt")
     }
 }
 

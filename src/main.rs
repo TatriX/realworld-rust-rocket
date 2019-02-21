@@ -20,14 +20,14 @@ extern crate validator_derive;
 
 use frank_jwt as jwt;
 
-mod db;
-mod schema;
-mod models;
-mod errors;
 mod auth;
-mod util;
 mod config;
+mod db;
+mod errors;
+mod models;
 mod routes;
+mod schema;
+mod util;
 
 use rocket_contrib::json::{Json, JsonValue};
 

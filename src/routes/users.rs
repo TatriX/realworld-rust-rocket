@@ -1,10 +1,10 @@
 use crate::auth::Auth;
-use validator::{Validate, ValidationError, ValidationErrors};
-use rocket_contrib::json::{Json, JsonValue};
 use crate::db;
 use crate::errors::Errors;
 use crate::util::extract_string;
 use diesel::*;
+use rocket_contrib::json::{Json, JsonValue};
+use validator::{Validate, ValidationError, ValidationErrors};
 
 #[derive(Deserialize)]
 pub struct NewUser {

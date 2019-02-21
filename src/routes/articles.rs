@@ -1,11 +1,11 @@
-use rocket_contrib::json::{Json, JsonValue};
-use rocket::request::Form;
 use crate::auth::Auth;
-use validator::{Validate, ValidationErrors};
 use crate::db;
+use crate::db::articles::{FeedArticles, FindArticles};
 use crate::errors::Errors;
 use crate::util::extract_string;
-use crate::db::articles::{FeedArticles, FindArticles};
+use rocket::request::Form;
+use rocket_contrib::json::{Json, JsonValue};
+use validator::{Validate, ValidationErrors};
 
 #[derive(Deserialize)]
 pub struct NewArticle {
@@ -59,7 +59,11 @@ pub fn post_articles(
 
 /// return multiple articles, ordered by most recent first
 #[get("/articles?<params..>")]
-pub fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, conn: db::Conn) -> Json<JsonValue> {
+pub fn get_articles(
+    params: Form<FindArticles>,
+    auth: Option<Auth>,
+    conn: db::Conn,
+) -> Json<JsonValue> {
     let user_id = auth.map(|x| x.id);
     let articles = db::articles::find(&conn, &params, user_id);
     Json(json!({ "articles": articles, "articlesCount": articles.len() }))
@@ -115,7 +119,11 @@ pub struct NewCommentData {
     body: Option<String>,
 }
 
-#[post("/articles/<slug>/comments", format = "application/json", data = "<new_comment>")]
+#[post(
+    "/articles/<slug>/comments",
+    format = "application/json",
+    data = "<new_comment>"
+)]
 pub fn post_comment(
     slug: String,
     new_comment: Json<NewComment>,
@@ -152,7 +160,11 @@ pub fn get_comments(slug: String, conn: db::Conn) -> Json<JsonValue> {
 }
 
 #[get("/articles/feed?<params..>")]
-pub fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, conn: db::Conn) -> Json<JsonValue> {
+pub fn get_articles_feed(
+    params: Form<FeedArticles>,
+    auth: Auth,
+    conn: db::Conn,
+) -> Json<JsonValue> {
     let articles = db::articles::feed(&conn, &params, auth.id);
     Json(json!({ "articles": articles }))
 }

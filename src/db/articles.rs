@@ -1,15 +1,14 @@
-use diesel;
-use diesel::prelude::*;
-use crate::schema::articles;
-use crate::schema::users;
-use crate::schema::favorites;
-use crate::schema::follows;
-use diesel::pg::PgConnection;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
+use crate::schema::articles;
+use crate::schema::favorites;
+use crate::schema::follows;
+use crate::schema::users;
+use diesel;
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use slug;
-use std::iter;
-use rand::{thread_rng, Rng, distributions::Alphanumeric};
 
 const SUFFIX_LEN: usize = 6;
 const DEFAULT_LIMIT: i64 = 20;
@@ -199,8 +198,9 @@ pub fn favorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Article
             .execute(conn)?;
 
         Ok(populate(conn, article, true))
-    }).map_err(|err| println!("articles::favorite: {}", err))
-        .ok()
+    })
+    .map_err(|err| println!("articles::favorite: {}", err))
+    .ok()
 }
 
 pub fn unfavorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<ArticleJson> {
@@ -212,8 +212,9 @@ pub fn unfavorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Artic
         diesel::delete(favorites::table.find((user_id, article.id))).execute(conn)?;
 
         Ok(populate(conn, article, false))
-    }).map_err(|err| println!("articles::unfavorite: {}", err))
-        .ok()
+    })
+    .map_err(|err| println!("articles::unfavorite: {}", err))
+    .ok()
 }
 
 #[derive(Deserialize, AsChangeset, Default, Clone)]
@@ -251,15 +252,16 @@ pub fn update(
 pub fn delete(conn: &PgConnection, slug: &str, user_id: i32) {
     let result = diesel::delete(
         articles::table.filter(articles::slug.eq(slug).and(articles::author.eq(user_id))),
-    ).execute(conn);
+    )
+    .execute(conn);
     if let Err(err) = result {
         println!("articles::delete: {}", err);
     }
 }
 
 fn is_favorite(conn: &PgConnection, article: &Article, user_id: i32) -> bool {
-    use diesel::select;
     use diesel::dsl::exists;
+    use diesel::select;
 
     select(exists(favorites::table.find((user_id, article.id))))
         .get_result(conn)

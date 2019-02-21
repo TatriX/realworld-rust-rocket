@@ -1,11 +1,11 @@
-use diesel;
-use diesel::prelude::*;
-use crate::schema::articles;
-use crate::schema::users;
-use crate::schema::comments;
-use diesel::pg::PgConnection;
 use crate::models::comment::{Comment, CommentJson};
 use crate::models::user::User;
+use crate::schema::articles;
+use crate::schema::comments;
+use crate::schema::users;
+use diesel;
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
 
 #[derive(Insertable)]
 #[table_name = "comments"]
@@ -55,12 +55,13 @@ pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
 }
 
 pub fn delete(conn: &PgConnection, author: i32, slug: &str, comment_id: i32) {
-    use diesel::select;
     use diesel::dsl::exists;
+    use diesel::select;
 
     let belongs_to_author_result = select(exists(
         articles::table.filter(articles::slug.eq(slug).and(articles::author.eq(author))),
-    )).get_result::<bool>(conn);
+    ))
+    .get_result::<bool>(conn);
 
     if let Err(err) = belongs_to_author_result {
         match err {

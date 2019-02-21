@@ -1,5 +1,5 @@
-use chrono::{Duration, Utc};
 use crate::auth::Auth;
+use chrono::{Duration, Utc};
 
 type Url = String;
 
@@ -38,7 +38,8 @@ impl User {
             id: self.id,
             username: self.username.clone(),
             exp: exp.timestamp(),
-        }.token();
+        }
+        .token();
 
         UserAuth {
             username: &self.username,

@@ -1,12 +1,12 @@
-use rocket::response::status;
-use rocket::request::Request;
 use rocket::http::Status;
+use rocket::request::Request;
+use rocket::response::status;
 use rocket::response::{self, Responder};
 use rocket_contrib::json::Json;
-use validator::ValidationErrors;
-use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
 use std::error::Error;
+use std::ops::{Deref, DerefMut};
+use validator::ValidationErrors;
 
 #[derive(Debug, Serialize)]
 pub struct Errors {
@@ -28,7 +28,8 @@ impl<'r> Responder<'r> for Errors {
         status::Custom(
             Status::UnprocessableEntity,
             Json(json!({ "errors": errors })),
-        ).respond_to(req)
+        )
+        .respond_to(req)
     }
 }
 

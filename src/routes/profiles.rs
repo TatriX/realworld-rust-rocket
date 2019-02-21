@@ -1,14 +1,18 @@
-use rocket_contrib::json::{Json, JsonValue};
 use crate::auth::Auth;
 use crate::db;
 use crate::models::user::Profile;
+use rocket_contrib::json::{Json, JsonValue};
 
 fn to_profile_json(profile: Profile) -> Json<JsonValue> {
     Json(json!({ "profile": profile }))
 }
 
 #[get("/profiles/<username>")]
-pub fn get_profile(username: String, auth: Option<Auth>, conn: db::Conn) -> Option<Json<JsonValue>> {
+pub fn get_profile(
+    username: String,
+    auth: Option<Auth>,
+    conn: db::Conn,
+) -> Option<Json<JsonValue>> {
     let user_id = auth.map(|auth| auth.id);
     db::profiles::find(&conn, &username, user_id).map(to_profile_json)
 }
