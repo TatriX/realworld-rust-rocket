@@ -30,30 +30,25 @@ pub fn create(conn: &PgConnection, username: &str, email: &str, password: &str) 
         .expect("Error saving user")
 }
 
-pub fn login<'a>(conn: &PgConnection, email: &'a str, password: &'a str) -> Option<User> {
-    let result = users::table
+pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
+    let user = users::table
         .filter(users::email.eq(email))
-        .get_result::<User>(conn);
+        .get_result::<User>(conn)
+        .map_err(|err| println!("login_user: {}", err))
+        .ok()?;
 
-    // TODO: get rid of pyramid
-    match result {
-        Err(err) => {
-            println!("login_user: {}", err);
-            None
-        }
-        Ok(user) => match scrypt_check(password, &user.hash) {
-            Ok(valid) => {
-                if valid {
-                    Some(user)
-                } else {
-                    None
-                }
-            }
-            Err(err) => {
-                println!("login_user scrypt_check: {}", err);
-                None
-            }
-        },
+    let password_matches = scrypt_check(password, &user.hash)
+        .map_err(|err| println!("login_user: scrypt_check: {}", err))
+        .ok()?;
+
+    if password_matches {
+        Some(user)
+    } else {
+        println!(
+            "login attempt for '{}' failed: password doesn't match",
+            email
+        );
+        None
     }
 }
 
