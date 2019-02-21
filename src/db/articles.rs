@@ -127,23 +127,13 @@ pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) ->
 }
 
 pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option<ArticleJson> {
-    let result = articles::table
+    let article = articles::table
         .filter(articles::slug.eq(slug))
-        .first::<Article>(conn);
-
-    match result {
-        Err(err) => {
-            println!("articles::find_one: {}", err);
-            None
-        }
-        Ok(article) => {
-            let favorited = match user_id {
-                Some(user_id) => is_favorite(conn, &article, user_id),
-                None => false,
-            };
-            Some(populate(conn, article, favorited))
-        }
-    }
+        .first::<Article>(conn)
+        .map_err(|err| println!("articles::find_one: {}", err))
+        .ok()?;
+    let favorited = user_id.map(|id| is_favorite(conn, &article, id)).unwrap_or(false);
+    Some(populate(conn, article, favorited))
 }
 
 #[derive(FromForm, Default)]
