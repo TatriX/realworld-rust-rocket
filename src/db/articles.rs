@@ -63,7 +63,7 @@ fn slugify(title: &str) -> String {
 
 fn generate_suffix(len: usize) -> String {
     let mut rng = thread_rng();
-    iter::repeat(()).map(|()| rng.sample(Alphanumeric)).take(len).collect()
+    (0..len).map(|_| rng.sample(Alphanumeric)).collect()
 }
 
 #[derive(FromForm, Default)]
@@ -282,4 +282,16 @@ pub fn tags(conn: &PgConnection) -> Vec<String> {
         .select(diesel::dsl::sql("distinct unnest(tag_list)"))
         .load::<String>(conn)
         .expect("Cannot load tags")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_suffix() {
+        for len in 3..9 {
+            assert_eq!(generate_suffix(len).len(), len);
+        }
+    }
 }
