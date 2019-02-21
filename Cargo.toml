@@ -7,8 +7,8 @@ edition = "2018"
 [dependencies]
 dotenv = "0.13.0"
 rocket = "0.4.0"
-rocket_contrib = "0.4.0"
-rocket_cors = "0.4.0"
+rocket_contrib = {version = "0.4.0", default-features = false, features = ["json"]}
+rocket_cors = { version = "0.4.0", default-features = false }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 rust-crypto = "0.2.36"
