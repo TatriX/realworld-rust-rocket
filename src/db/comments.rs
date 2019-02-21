@@ -1,11 +1,11 @@
 use diesel;
 use diesel::prelude::*;
-use schema::articles;
-use schema::users;
-use schema::comments;
+use crate::schema::articles;
+use crate::schema::users;
+use crate::schema::comments;
 use diesel::pg::PgConnection;
-use models::comment::{Comment, CommentJson};
-use models::user::User;
+use crate::models::comment::{Comment, CommentJson};
+use crate::models::user::User;
 
 #[derive(Insertable)]
 #[table_name = "comments"]

@@ -1,5 +1,5 @@
 use rocket_contrib::json::{Json, JsonValue};
-use db;
+use crate::db;
 
 #[get("/tags")]
 pub fn get_tags(conn: db::Conn) -> Json<JsonValue> {

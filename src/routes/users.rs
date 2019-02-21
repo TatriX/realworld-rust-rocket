@@ -1,9 +1,9 @@
-use auth::Auth;
+use crate::auth::Auth;
 use validator::{Validate, ValidationError, ValidationErrors};
 use rocket_contrib::json::{Json, JsonValue};
-use db;
-use errors::Errors;
-use util::extract_string;
+use crate::db;
+use crate::errors::Errors;
+use crate::util::extract_string;
 use diesel::*;
 
 #[derive(Deserialize)]
@@ -23,7 +23,7 @@ struct NewUserData {
 
 #[post("/users", format = "application/json", data = "<new_user>")]
 pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
-    use schema::users;
+    use crate::schema::users;
 
     let mut errors = Errors {
         errors: new_user

@@ -1,7 +1,7 @@
 use rocket_contrib::json::{Json, JsonValue};
-use auth::Auth;
-use db;
-use models::user::Profile;
+use crate::auth::Auth;
+use crate::db;
+use crate::models::user::Profile;
 
 fn to_profile_json(profile: Profile) -> Json<JsonValue> {
     Json(json!({ "profile": profile }))

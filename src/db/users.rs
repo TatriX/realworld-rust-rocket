@@ -1,9 +1,9 @@
-use schema::users;
+use crate::schema::users;
 use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
-use models::user::User;
+use crate::models::user::User;
 
 #[derive(Insertable)]
 #[table_name = "users"]

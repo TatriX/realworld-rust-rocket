@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
-use config::DATE_FORMAT;
-use models::user::User;
+use crate::config::DATE_FORMAT;
+use crate::models::user::User;
 
 #[derive(Queryable)]
 pub struct Comment {

@@ -1,10 +1,10 @@
 use rocket::Outcome;
 use rocket::request::{self, FromRequest, Request};
 
-use jwt;
+use crate::jwt;
 use serde_json;
 
-use config;
+use crate::config;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {

@@ -2,10 +2,7 @@
 authors = ["TatriX <tatrics@gmail.com>"]
 name = "realworld"
 version = "0.2.0"
-
-[[bin]]
-name = "main"
-path = "src/main.rs"
+edition = "2018"
 
 [dependencies]
 dotenv = "0.13.0"

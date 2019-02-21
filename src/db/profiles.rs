@@ -1,9 +1,9 @@
-use schema::{follows, users};
+use crate::schema::{follows, users};
 use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
-use models::user::{Profile, User};
+use crate::models::user::{Profile, User};
 
 pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Profile> {
     let result = users::table

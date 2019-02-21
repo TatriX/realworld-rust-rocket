@@ -1,11 +1,11 @@
 use rocket_contrib::json::{Json, JsonValue};
 use rocket::request::Form;
-use auth::Auth;
+use crate::auth::Auth;
 use validator::{Validate, ValidationErrors};
-use db;
-use errors::Errors;
-use util::extract_string;
-use db::articles::{FeedArticles, FindArticles};
+use crate::db;
+use crate::errors::Errors;
+use crate::util::extract_string;
+use crate::db::articles::{FeedArticles, FindArticles};
 
 #[derive(Deserialize)]
 pub struct NewArticle {

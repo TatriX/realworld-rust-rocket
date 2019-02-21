@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use auth::Auth;
+use crate::auth::Auth;
 
 type Url = String;
 

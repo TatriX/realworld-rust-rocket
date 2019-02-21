@@ -4,29 +4,21 @@
 
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
 
 #[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
-extern crate rocket_cors;
+use rocket_cors;
 
 #[macro_use]
 extern crate diesel;
 
-extern crate validator;
+use validator;
 #[macro_use]
 extern crate validator_derive;
 
-extern crate crypto;
-extern crate dotenv;
-
-extern crate chrono;
-extern crate frank_jwt as jwt;
-
-extern crate rand;
-extern crate slug;
+use frank_jwt as jwt;
 
 mod db;
 mod schema;

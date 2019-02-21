@@ -1,12 +1,12 @@
 use diesel;
 use diesel::prelude::*;
-use schema::articles;
-use schema::users;
-use schema::favorites;
-use schema::follows;
+use crate::schema::articles;
+use crate::schema::users;
+use crate::schema::favorites;
+use crate::schema::follows;
 use diesel::pg::PgConnection;
-use models::article::{Article, ArticleJson};
-use models::user::User;
+use crate::models::article::{Article, ArticleJson};
+use crate::models::user::User;
 use slug;
 use std::iter;
 use rand::{thread_rng, Rng, distributions::Alphanumeric};
