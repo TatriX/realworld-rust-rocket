@@ -115,15 +115,12 @@ pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) ->
             },
         }
     }
-    // println!("{}", diesel::debug_query(&query).to_string());
 
-    let result = query
+    query
         .limit(params.limit.unwrap_or(DEFAULT_LIMIT))
         .offset(params.offset.unwrap_or(0))
         .load::<(Article, User, bool)>(conn)
-        .expect("Cannot load articles");
-
-    result
+        .expect("Cannot load articles")
         .into_iter()
         .map(|(article, author, favorited)| article.attach(author, favorited))
         .collect()
