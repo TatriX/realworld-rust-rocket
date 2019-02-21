@@ -1,6 +1,4 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-// silence diesel warning untill its new version is released
-#![allow(proc_macro_derive_resolution_fallback)]
 
 #[macro_use]
 extern crate serde_derive;
