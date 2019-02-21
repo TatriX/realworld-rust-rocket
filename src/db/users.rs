@@ -53,14 +53,11 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
 }
 
 pub fn find(conn: &PgConnection, id: i32) -> Option<User> {
-    let result = users::table.find(id).get_result::<User>(conn);
-    match result {
-        Err(err) => {
-            println!("find_user: {}", err);
-            None
-        }
-        Ok(user) => Some(user),
-    }
+    users::table
+        .find(id)
+        .get_result(conn)
+        .map_err(|err| println!("find_user: {}", err))
+        .ok()
 }
 
 // TODO: remove clone when diesel will allow skipping fields

@@ -132,7 +132,11 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option
         .first::<Article>(conn)
         .map_err(|err| println!("articles::find_one: {}", err))
         .ok()?;
-    let favorited = user_id.map(|id| is_favorite(conn, &article, id)).unwrap_or(false);
+
+    let favorited = user_id
+        .map(|id| is_favorite(conn, &article, id))
+        .unwrap_or(false);
+
     Some(populate(conn, article, favorited))
 }
 

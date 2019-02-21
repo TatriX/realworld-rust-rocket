@@ -6,22 +6,17 @@ use diesel::prelude::*;
 use crate::models::user::{Profile, User};
 
 pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Profile> {
-    let result = users::table
+    let user = users::table
         .filter(users::username.eq(name))
-        .get_result::<User>(conn);
-    match result {
-        Err(err) => {
-            println!("find_user_by_name: {}", err);
-            None
-        }
-        Ok(user) => {
-            let following = match user_id {
-                Some(user_id) => is_following(conn, &user, user_id),
-                None => false,
-            };
-            Some(user.to_profile(following))
-        }
-    }
+        .get_result(conn)
+        .map_err(|err| println!("find_user_by_name: {}", err))
+        .ok()?;
+
+    let following = user_id
+        .map(|id| is_following(conn, &user, id))
+        .unwrap_or(false);
+
+    Some(user.to_profile(following))
 }
 
 fn is_following(conn: &PgConnection, user: &User, user_id: i32) -> bool {
