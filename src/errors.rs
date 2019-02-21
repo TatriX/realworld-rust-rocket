@@ -5,7 +5,6 @@ use rocket::response::{self, Responder};
 use rocket_contrib::json::Json;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::error::Error;
 use std::ops::{Deref, DerefMut};
 use validator::ValidationErrors;
 
@@ -16,16 +15,16 @@ pub struct Errors {
 
 impl<'r> Responder<'r> for Errors {
     fn respond_to(self, req: &Request) -> response::Result<'r> {
-        // TODO: get rid of allocations
-        let mut errors = HashMap::new();
-        for (field, ers) in self.errors.field_errors() {
-            errors.insert(
-                field,
-                ers.into_iter()
-                    .map(|err| err.description().to_owned())
-                    .collect::<Vec<_>>(),
-            );
-        }
+        let errors = self
+            .errors
+            .field_errors()
+            .into_iter()
+            .map(|(field, errors)| {
+                let codes = errors.into_iter().map(|err| err.code).collect();
+                (field, codes)
+            })
+            .collect::<HashMap<_, Vec<_>>>();
+
         status::Custom(
             Status::UnprocessableEntity,
             Json(json!({ "errors": errors })),
