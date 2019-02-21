@@ -3,6 +3,7 @@ use rocket::request::Request;
 use rocket::response::status;
 use rocket::response::{self, Responder};
 use rocket_contrib::json::Json;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
 use std::ops::{Deref, DerefMut};

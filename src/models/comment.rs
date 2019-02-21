@@ -1,6 +1,7 @@
 use crate::config::DATE_FORMAT;
 use crate::models::user::User;
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 #[derive(Queryable)]
 pub struct Comment {

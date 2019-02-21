@@ -5,6 +5,7 @@ use crate::errors::Errors;
 use crate::util::extract_string;
 use rocket::request::Form;
 use rocket_contrib::json::{Json, JsonValue};
+use serde::Deserialize;
 use validator::{Validate, ValidationErrors};
 
 #[derive(Deserialize)]

@@ -1,5 +1,6 @@
 use crate::auth::Auth;
 use chrono::{Duration, Utc};
+use serde::Serialize;
 
 type Url = String;
 

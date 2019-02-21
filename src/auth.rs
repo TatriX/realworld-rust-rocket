@@ -1,5 +1,6 @@
 use rocket::request::{self, FromRequest, Request};
 use rocket::Outcome;
+use serde::{Deserialize, Serialize};
 
 use crate::jwt;
 use serde_json;

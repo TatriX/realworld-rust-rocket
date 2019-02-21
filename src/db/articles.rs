@@ -8,6 +8,7 @@ use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use serde::Deserialize;
 use slug;
 
 const SUFFIX_LEN: usize = 6;

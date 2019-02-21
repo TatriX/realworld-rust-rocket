@@ -4,6 +4,7 @@ use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use serde::Deserialize;
 
 #[derive(Insertable)]
 #[table_name = "users"]

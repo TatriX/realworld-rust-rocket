@@ -4,6 +4,7 @@ use crate::errors::Errors;
 use crate::util::extract_string;
 use diesel::*;
 use rocket_contrib::json::{Json, JsonValue};
+use serde::Deserialize;
 use validator::{Validate, ValidationError, ValidationErrors};
 
 #[derive(Deserialize)]

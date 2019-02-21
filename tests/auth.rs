@@ -92,7 +92,8 @@ mod a_auth {
         match status {
             reqwest::StatusCode::OK => check_user_response(&mut resp),
             reqwest::StatusCode::UNPROCESSABLE_ENTITY => {
-                let body = resp.json::<ValidationErrors>()
+                let body = resp
+                    .json::<ValidationErrors>()
                     .expect("Can't parse validation errors");
                 if body.errors["username"] != vec!["has already been taken"] {
                     panic!("Got validation errors: {:#?}", body);
@@ -128,7 +129,8 @@ mod b_auth {
                 let wrapper = resp.json::<Value>().expect("Can't parse user");
                 let user = wrapper.get("user").expect("Must have a 'user' field");
                 let mut token = TOKEN.write().unwrap();
-                *token = user.get("token")
+                *token = user
+                    .get("token")
                     .expect("User has token")
                     .as_str()
                     .expect("Token must be a string")
