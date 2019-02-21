@@ -105,7 +105,7 @@ pub fn put_articles(
     conn: db::Conn,
 ) -> Option<Json<JsonValue>> {
     // TODO: check auth
-    db::articles::update(&conn, &slug, auth.id, &article.article)
+    db::articles::update(&conn, &slug, auth.id, article.into_inner().article)
         .map(|article| Json(json!({ "article": article })))
 }
 

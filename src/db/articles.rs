@@ -221,9 +221,8 @@ pub fn update(
     conn: &PgConnection,
     slug: &str,
     user_id: i32,
-    data: &UpdateArticleData,
+    mut data: UpdateArticleData,
 ) -> Option<ArticleJson> {
-    let mut data = data.clone();
     if let Some(ref title) = data.title {
         data.slug = Some(slugify(&title));
     }
