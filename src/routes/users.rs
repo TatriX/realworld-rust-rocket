@@ -1,11 +1,10 @@
 use crate::auth::Auth;
 use crate::db;
-use crate::errors::Errors;
-use crate::util::extract_string;
+use crate::errors::{Errors, FieldValidator};
 use diesel::*;
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
-use validator::{Validate, ValidationError, ValidationErrors};
+use validator::Validate;
 
 #[derive(Deserialize)]
 pub struct NewUser {
@@ -26,30 +25,24 @@ struct NewUserData {
 pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
     use crate::schema::users;
 
-    let mut errors = Errors {
-        errors: new_user
-            .user
-            .validate()
-            .err()
-            .unwrap_or_else(ValidationErrors::new),
-    };
+    let new_user = new_user.into_inner().user;
 
-    let username = extract_string(&new_user.user.username, "username", &mut errors);
-    let email = extract_string(&new_user.user.email, "email", &mut errors);
-    let password = extract_string(&new_user.user.password, "password", &mut errors);
+    let mut extractor = FieldValidator::validate(&new_user);
+    let username = extractor.extract("username", new_user.username);
+    let email = extractor.extract("email", new_user.email);
+    let password = extractor.extract("password", new_user.password);
 
+    // TODO: move to db module
     let n: i64 = users::table
-        .filter(users::username.eq(username))
+        .filter(users::username.eq(&username))
         .count()
         .get_result(&*conn)
         .expect("count username");
     if n > 0 {
-        errors.add("username", ValidationError::new("has already been taken"));
+        extractor.add_error("username", "has already been taken");
     }
 
-    if !errors.is_empty() {
-        return Err(errors);
-    }
+    extractor.check()?;
 
     let user = db::users::create(&conn, &username, &email, &password);
     Ok(Json(json!({ "user": user.to_user_auth() })))
@@ -68,16 +61,16 @@ struct LoginUserData {
 
 #[post("/users/login", format = "application/json", data = "<user>")]
 pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
-    let mut errors = Errors::new();
-    let email = extract_string(&user.user.email, "email", &mut errors);
-    let password = extract_string(&user.user.password, "password", &mut errors);
-    match db::users::login(&conn, &email, &password) {
-        Some(user) => Ok(Json(json!({ "user": user.to_user_auth() }))),
-        None => {
-            errors.add("email or password", ValidationError::new("is invalid"));
-            Err(errors)
-        }
-    }
+    let user = user.into_inner().user;
+
+    let mut extractor = FieldValidator::default();
+    let email = extractor.extract("email", user.email);
+    let password = extractor.extract("password", user.password);
+    extractor.check()?;
+
+    db::users::login(&conn, &email, &password)
+        .map(|user| Json(json!({ "user": user.to_user_auth() })))
+        .ok_or_else(|| Errors::new(&[("email or password", "is invalid")]))
 }
 
 #[get("/user")]

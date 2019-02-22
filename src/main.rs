@@ -22,7 +22,6 @@ mod errors;
 mod models;
 mod routes;
 mod schema;
-mod util;
 
 use rocket_contrib::json::{Json, JsonValue};
 

@@ -3,14 +3,25 @@ use rocket::request::Request;
 use rocket::response::status;
 use rocket::response::{self, Responder};
 use rocket_contrib::json::Json;
-use serde::Serialize;
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
-use validator::ValidationErrors;
+use validator::{Validate, ValidationError, ValidationErrors};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Errors {
-    pub errors: ValidationErrors,
+    errors: ValidationErrors,
+}
+
+pub type FieldName = &'static str;
+pub type FieldErrorCode = &'static str;
+
+impl Errors {
+    pub fn new(errs: &[(FieldName, FieldErrorCode)]) -> Self {
+        let mut errors = ValidationErrors::new();
+        for (field, code) in errs {
+            errors.add(field, ValidationError::new(code));
+        }
+        Self { errors }
+    }
 }
 
 impl<'r> Responder<'r> for Errors {
@@ -33,25 +44,47 @@ impl<'r> Responder<'r> for Errors {
     }
 }
 
-impl Errors {
-    #[allow(dead_code)]
-    pub fn new() -> Errors {
-        Errors {
+pub struct FieldValidator {
+    errors: ValidationErrors,
+}
+
+impl Default for FieldValidator {
+    fn default() -> Self {
+        Self {
             errors: ValidationErrors::new(),
         }
     }
 }
 
-impl Deref for Errors {
-    type Target = ValidationErrors;
-
-    fn deref(&self) -> &ValidationErrors {
-        &self.errors
+impl FieldValidator {
+    pub fn validate<T: Validate>(model: &T) -> Self {
+        Self {
+            errors: model.validate().err().unwrap_or_else(ValidationErrors::new),
+        }
     }
-}
 
-impl DerefMut for Errors {
-    fn deref_mut(&mut self) -> &mut ValidationErrors {
-        &mut self.errors
+    /// Convenience method to trigger early returns with ? operator.
+    pub fn check(self) -> Result<(), Errors> {
+        if self.errors.is_empty() {
+            Ok(())
+        } else {
+            Err(Errors {
+                errors: self.errors,
+            })
+        }
+    }
+    pub fn add_error(&mut self, field_name: FieldName, code: FieldErrorCode) {
+        self.errors.add(field_name, ValidationError::new(code))
+    }
+
+    pub fn extract<T>(&mut self, field_name: &'static str, field: Option<T>) -> T
+    where
+        T: Default,
+    {
+        field.unwrap_or_else(|| {
+            self.errors
+                .add(field_name, ValidationError::new("can't be blank"));
+            T::default()
+        })
     }
 }

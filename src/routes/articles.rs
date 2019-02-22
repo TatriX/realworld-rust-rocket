@@ -1,12 +1,11 @@
 use crate::auth::Auth;
 use crate::db;
 use crate::db::articles::{FeedArticles, FindArticles};
-use crate::errors::Errors;
-use crate::util::extract_string;
+use crate::errors::{Errors, FieldValidator};
 use rocket::request::Form;
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
-use validator::{Validate, ValidationErrors};
+use validator::Validate;
 
 #[derive(Deserialize)]
 pub struct NewArticle {
@@ -31,21 +30,13 @@ pub fn post_articles(
     new_article: Json<NewArticle>,
     conn: db::Conn,
 ) -> Result<Json<JsonValue>, Errors> {
-    let mut errors = Errors {
-        errors: new_article
-            .article
-            .validate()
-            .err()
-            .unwrap_or_else(ValidationErrors::new),
-    };
+    let new_article = new_article.into_inner().article;
 
-    let title = extract_string(&new_article.article.title, "title", &mut errors);
-    let description = extract_string(&new_article.article.description, "description", &mut errors);
-    let body = extract_string(&new_article.article.body, "body", &mut errors);
-
-    if !errors.is_empty() {
-        return Err(errors);
-    }
+    let mut extractor = FieldValidator::validate(&new_article);
+    let title = extractor.extract("title", new_article.title);
+    let description = extractor.extract("description", new_article.description);
+    let body = extractor.extract("body", new_article.body);
+    extractor.check()?;
 
     let article = db::articles::create(
         &conn,
@@ -53,7 +44,7 @@ pub fn post_articles(
         &title,
         &description,
         &body,
-        &new_article.article.tag_list,
+        &new_article.tag_list,
     );
     Ok(Json(json!({ "article": article })))
 }
@@ -131,19 +122,11 @@ pub fn post_comment(
     auth: Auth,
     conn: db::Conn,
 ) -> Result<Json<JsonValue>, Errors> {
-    let mut errors = Errors {
-        errors: new_comment
-            .comment
-            .validate()
-            .err()
-            .unwrap_or_else(ValidationErrors::new),
-    };
+    let new_comment = new_comment.into_inner().comment;
 
-    let body = extract_string(&new_comment.comment.body, "body", &mut errors);
-
-    if !errors.is_empty() {
-        return Err(errors);
-    }
+    let mut extractor = FieldValidator::validate(&new_comment);
+    let body = extractor.extract("body", new_comment.body);
+    extractor.check()?;
 
     let comment = db::comments::create(&conn, auth.id, &slug, &body);
     Ok(Json(json!({ "comment": comment })))
