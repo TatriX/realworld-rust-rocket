@@ -6,6 +6,34 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
 
+
+pub fn validate_unique_username(conn: &PgConnection, username: &str) -> Result<(), ()> {
+    use crate::schema::users;
+    let n: i64 = users::table
+        .filter(users::username.eq(&username))
+        .count()
+        .get_result(conn)
+        .expect("count username");
+    if n > 0 {
+        return Err(());
+    }
+    Ok(())
+}
+pub fn validate_unique_email(conn: &PgConnection, email: &str) -> Result<(), ()> {
+    use crate::schema::users;
+    let n: i64 = users::table
+        .filter(users::email.eq(&email))
+        .count()
+        .get_result(conn)
+        .expect("count email");
+    if n > 0 {
+        return Err(());
+    }
+    Ok(())
+}
+
+
+
 #[derive(Insertable)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
