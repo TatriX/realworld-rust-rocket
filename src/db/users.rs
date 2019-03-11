@@ -1,10 +1,10 @@
 use crate::models::user::User;
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
+use diesel::dsl::{exists, select};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
-use diesel::dsl::{exists, select};
 
 #[allow(unused_variables)]
 pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
@@ -22,8 +22,6 @@ pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
         .get_result(conn)
         .expect("exist email")
 }
-
-
 
 #[derive(Insertable)]
 #[table_name = "users"]

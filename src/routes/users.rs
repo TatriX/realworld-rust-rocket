@@ -30,10 +30,10 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonVa
     let email = extractor.extract("email", new_user.email);
     let password = extractor.extract("password", new_user.password);
 
-    if username_exists(&conn, &username){
-       extractor.add_error("username", "has already been taken");
+    if username_exists(&conn, &username) {
+        extractor.add_error("username", "has already been taken");
     }
-     if email_exists(&conn, &email){
+    if email_exists(&conn, &email) {
         extractor.add_error("email", "has already been taken");
     }
     extractor.check()?;
