@@ -150,5 +150,6 @@ pub fn get_articles_feed(
     conn: db::Conn,
 ) -> Json<JsonValue> {
     let articles = db::articles::feed(&conn, &params, auth.id);
-    Json(json!({ "articles": articles }))
+    let articles_count = articles.len();
+    Json(json!({ "articles": articles, "articlesCount": articles_count }))
 }
