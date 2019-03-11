@@ -12,14 +12,12 @@ pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Pro
         .map_err(|err| println!("find_user_by_name: {}", err))
         .ok()?;
 
-    let following = user_id
-        .map(|id| is_following(conn, &user, id))
-        .unwrap_or(false);
+    let following = user_id.map_or(false, |id| is_following(conn, &user, id));
 
     Some(user.to_profile(following))
 }
 
-fn is_following(conn: &PgConnection, user: &User, user_id: i32) -> bool {
+pub fn is_following(conn: &PgConnection, user: &User, user_id: i32) -> bool {
     use diesel::dsl::exists;
     use diesel::select;
 

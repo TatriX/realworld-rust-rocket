@@ -1,3 +1,4 @@
+use crate::db::profiles::is_following;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
 use crate::schema::articles;
@@ -51,7 +52,7 @@ pub fn create(
         .values(new_article)
         .get_result::<Article>(conn)
         .expect("Error creating article")
-        .attach(author, false)
+        .attach(author.to_profile(false), false)
 }
 
 fn slugify(title: &str) -> String {
@@ -122,7 +123,9 @@ pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) ->
         .load::<(Article, User, bool)>(conn)
         .expect("Cannot load articles")
         .into_iter()
-        .map(|(article, author, favorited)| article.attach(author, favorited))
+        .map(|(article, author, favorited)| {
+            article.attach(author.to_profile_for(conn, user_id), favorited)
+        })
         .collect()
 }
 
@@ -137,7 +140,7 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option
         .map(|id| is_favorite(conn, &article, id))
         .unwrap_or(false);
 
-    Some(populate(conn, article, favorited))
+    Some(populate(conn, article, favorited, user_id))
 }
 
 #[derive(FromForm, Default)]
@@ -172,7 +175,9 @@ pub fn feed(conn: &PgConnection, params: &FeedArticles, user_id: i32) -> Vec<Art
         .load::<(Article, User, bool)>(conn)
         .expect("Cannot load feed")
         .into_iter()
-        .map(|(article, author, favorited)| article.attach(author, favorited))
+        .map(|(article, author, favorited)| {
+            article.attach(author.to_profile_for(conn, Some(user_id)), favorited)
+        })
         .collect()
 }
 
@@ -189,7 +194,7 @@ pub fn favorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Article
             ))
             .execute(conn)?;
 
-        Ok(populate(conn, article, true))
+        Ok(populate(conn, article, true, Some(user_id)))
     })
     .map_err(|err| println!("articles::favorite: {}", err))
     .ok()
@@ -203,7 +208,7 @@ pub fn unfavorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Artic
 
         diesel::delete(favorites::table.find((user_id, article.id))).execute(conn)?;
 
-        Ok(populate(conn, article, false))
+        Ok(populate(conn, article, false, Some(user_id)))
     })
     .map_err(|err| println!("articles::unfavorite: {}", err))
     .ok()
@@ -237,7 +242,7 @@ pub fn update(
         .expect("Error loading article");
 
     let favorited = is_favorite(conn, &article, user_id);
-    Some(populate(conn, article, favorited))
+    Some(populate(conn, article, favorited, Some(user_id)))
 }
 
 pub fn delete(conn: &PgConnection, slug: &str, user_id: i32) {
@@ -259,13 +264,21 @@ fn is_favorite(conn: &PgConnection, article: &Article, user_id: i32) -> bool {
         .expect("Error loading favorited")
 }
 
-fn populate(conn: &PgConnection, article: Article, favorited: bool) -> ArticleJson {
+fn populate(
+    conn: &PgConnection,
+    article: Article,
+    favorited: bool,
+    user_id: Option<i32>,
+) -> ArticleJson {
     let author = users::table
         .find(article.author)
         .get_result::<User>(conn)
         .expect("Error loading author");
 
-    article.attach(author, favorited)
+    let following = user_id.map_or(false, |user_id| is_following(conn, &author, user_id));
+
+    let profile = author.to_profile(following);
+    article.attach(profile, favorited)
 }
 
 pub fn tags(conn: &PgConnection) -> Vec<String> {
