@@ -1,7 +1,7 @@
 use crate::models::user::User;
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
-use diesel;
+use diesel::dsl::{exists, select};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -83,4 +83,16 @@ pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<Use
         .set(data)
         .get_result(conn)
         .ok()
+}
+
+pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
+    select(exists(users::table.filter(users::username.eq(username))))
+        .get_result(conn)
+        .expect("exist username")
+}
+
+pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
+    select(exists(users::table.filter(users::email.eq(email))))
+        .get_result(conn)
+        .expect("exist email")
 }

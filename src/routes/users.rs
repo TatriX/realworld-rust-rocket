@@ -1,11 +1,10 @@
 use crate::auth::Auth;
-use crate::db;
+use crate::db::{self, users::{email_exists, username_exists}};
 use crate::errors::{Errors, FieldValidator};
-use diesel::*;
+
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
 use validator::Validate;
-
 #[derive(Deserialize)]
 pub struct NewUser {
     user: NewUserData,
@@ -23,8 +22,6 @@ struct NewUserData {
 
 #[post("/users", format = "application/json", data = "<new_user>")]
 pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
-    use crate::schema::users;
-
     let new_user = new_user.into_inner().user;
 
     let mut extractor = FieldValidator::validate(&new_user);
@@ -32,14 +29,11 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonVa
     let email = extractor.extract("email", new_user.email);
     let password = extractor.extract("password", new_user.password);
 
-    // TODO: move to db module
-    let n: i64 = users::table
-        .filter(users::username.eq(&username))
-        .count()
-        .get_result(&*conn)
-        .expect("count username");
-    if n > 0 {
+    if username_exists(&conn, &username) {
         extractor.add_error("username", "has already been taken");
+    }
+    if email_exists(&conn, &email) {
+        extractor.add_error("email", "has already been taken");
     }
 
     extractor.check()?;
