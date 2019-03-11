@@ -1,35 +1,26 @@
 use crate::models::user::User;
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
-use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
+use diesel::dsl::{exists, select};
 
-
-pub fn validate_unique_username(conn: &PgConnection, username: &str) -> Result<(), ()> {
-    use crate::schema::users;
-    let n: i64 = users::table
-        .filter(users::username.eq(&username))
-        .count()
+#[allow(unused_variables)]
+pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
+    use self::users::dsl::*;
+    let username_exists = select(exists(users.filter(username.eq(username))))
         .get_result(conn)
-        .expect("count username");
-    if n > 0 {
-        return Err(());
-    }
-    Ok(())
+        .expect("exist username");
+    username_exists
 }
-pub fn validate_unique_email(conn: &PgConnection, email: &str) -> Result<(), ()> {
-    use crate::schema::users;
-    let n: i64 = users::table
-        .filter(users::email.eq(&email))
-        .count()
+
+#[allow(unused_variables)]
+pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
+    use self::users::dsl::*;
+    select(exists(users.filter(email.eq(email))))
         .get_result(conn)
-        .expect("count email");
-    if n > 0 {
-        return Err(());
-    }
-    Ok(())
+        .expect("exist email")
 }
 
 
