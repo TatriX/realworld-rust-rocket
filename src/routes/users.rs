@@ -1,7 +1,6 @@
 use crate::auth::Auth;
-use crate::db;
+use crate::db::{self, users::{email_exists, username_exists}};
 use crate::errors::{Errors, FieldValidator};
-use db::users::{email_exists, username_exists};
 
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
@@ -36,6 +35,7 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonVa
     if email_exists(&conn, &email) {
         extractor.add_error("email", "has already been taken");
     }
+
     extractor.check()?;
 
     let user = db::users::create(&conn, &username, &email, &password);

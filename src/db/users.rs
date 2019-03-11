@@ -6,23 +6,6 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
 
-#[allow(unused_variables)]
-pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
-    use self::users::dsl::*;
-    let username_exists = select(exists(users.filter(username.eq(username))))
-        .get_result(conn)
-        .expect("exist username");
-    username_exists
-}
-
-#[allow(unused_variables)]
-pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
-    use self::users::dsl::*;
-    select(exists(users.filter(email.eq(email))))
-        .get_result(conn)
-        .expect("exist email")
-}
-
 #[derive(Insertable)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
@@ -100,4 +83,16 @@ pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<Use
         .set(data)
         .get_result(conn)
         .ok()
+}
+
+pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
+    select(exists(users::table.filter(users::username.eq(username))))
+        .get_result(conn)
+        .expect("exist username")
+}
+
+pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
+    select(exists(users::table.filter(users::email.eq(email))))
+        .get_result(conn)
+        .expect("exist email")
 }
