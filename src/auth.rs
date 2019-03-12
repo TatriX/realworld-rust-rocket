@@ -32,8 +32,7 @@ impl Auth {
 
 impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     type Error = ();
-
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, ()> {
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, Self::Error> {
         if let Some(auth) = extract_auth_from_request(request) {
             Outcome::Success(auth)
         } else {
