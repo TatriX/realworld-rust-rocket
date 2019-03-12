@@ -36,10 +36,14 @@ pub fn create(conn: &PgConnection, author: i32, slug: &str, body: &str) -> Comme
         .values(new_comment)
         .get_result::<Comment>(conn)
         .expect("Error creating comment")
-        .attach(author)
+        .attach(author.to_profile(false))
 }
 
-pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
+pub fn find_by_slug(
+    conn: &PgConnection,
+    slug: &str,
+    current_user_id: Option<i32>,
+) -> Vec<CommentJson> {
     let result = comments::table
         .inner_join(articles::table)
         .inner_join(users::table)
@@ -50,7 +54,7 @@ pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
 
     result
         .into_iter()
-        .map(|(comment, author)| comment.attach(author))
+        .map(|(comment, author)| comment.attach(author.to_profile_for(conn, current_user_id)))
         .collect()
 }
 

@@ -1,5 +1,5 @@
 use crate::config::DATE_FORMAT;
-use crate::models::user::User;
+use crate::models::user::Profile;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
@@ -14,7 +14,7 @@ pub struct Comment {
 }
 
 impl Comment {
-    pub fn attach(self, author: User) -> CommentJson {
+    pub fn attach(self, author: Profile) -> CommentJson {
         CommentJson {
             id: self.id,
             body: self.body,
@@ -30,7 +30,7 @@ impl Comment {
 pub struct CommentJson {
     pub id: i32,
     pub body: String,
-    pub author: User,
+    pub author: Profile,
     pub created_at: String,
     pub updated_at: String,
 }

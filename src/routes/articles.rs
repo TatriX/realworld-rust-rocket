@@ -138,8 +138,9 @@ pub fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
 }
 
 #[get("/articles/<slug>/comments")]
-pub fn get_comments(slug: String, conn: db::Conn) -> Json<JsonValue> {
-    let comments = db::comments::find_by_slug(&conn, &slug);
+pub fn get_comments(slug: String, conn: db::Conn, auth: Option<Auth>) -> Json<JsonValue> {
+    let auth_id = auth.map_or(None, |auth| Some(auth.id));
+    let comments = db::comments::find_by_slug(&conn, &slug, auth_id);
     Json(json!({ "comments": comments }))
 }
 
