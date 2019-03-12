@@ -223,7 +223,7 @@ pub struct UpdateArticleData {
     #[serde(skip)]
     slug: Option<String>,
     #[serde(rename = "tagList")]
-    tag_list: Vec<String>,
+    tag_list: Option<Vec<String>>,
 }
 
 pub fn update(
