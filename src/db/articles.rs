@@ -24,7 +24,7 @@ struct NewArticle<'a> {
     body: &'a str,
     slug: &'a str,
     author: i32,
-    tag_list: &'a Vec<String>,
+    tag_list: &'a [String],
 }
 
 pub fn create(
@@ -33,7 +33,7 @@ pub fn create(
     title: &str,
     description: &str,
     body: &str,
-    tag_list: &Vec<String>,
+    tag_list: &[String],
 ) -> ArticleJson {
     let new_article = &NewArticle {
         title,
