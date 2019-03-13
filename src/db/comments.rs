@@ -1,3 +1,4 @@
+use crate::db::users::to_profile_for;
 use crate::models::comment::{Comment, CommentJson};
 use crate::models::user::User;
 use crate::schema::articles;
@@ -54,7 +55,7 @@ pub fn find_by_slug(
 
     result
         .into_iter()
-        .map(|(comment, author)| comment.attach(author.to_profile_for(conn, current_user_id)))
+        .map(|(comment, author)| comment.attach(to_profile_for(conn, &author, current_user_id)))
         .collect()
 }
 

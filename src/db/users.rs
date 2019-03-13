@@ -1,10 +1,47 @@
-use crate::models::user::User;
+use crate::models::user::{Profile, User};
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel::dsl::{exists, select};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::Deserialize;
+
+/// Return a `Profile` for a given `user` adding the `following` property.
+/// `following` take true if  `Some(user_id)` is given, and `user` is follower
+/// of user with id `user_id`.
+///
+/// If  `user_id` is `None`, returned `Profile.following`  always take `false`
+///
+/// # Examples
+///
+/// When `Some` `user_id` is given, the `following` is checked at the database
+///
+/// ```rust
+/// # use crate::db::to_profile_for;
+/// let user_profile_follower: Profile = to_profile_for(conn, &user, Some(7) /* following */);
+/// assert_eq!(user_profile.following, true);
+/// let user_profile_not_follow: Profile = to_profile_for(conn, &user, Some(8) /* not following */);
+/// assert_eq!(user_profile_not_follow.following, false);
+/// ```
+///
+/// When `None` `user_id` is given, always the `following` property of the `Profile` returned
+/// is false
+///
+/// ```rust
+/// # use crate::db::to_profile_for;
+/// let user_profile: Profile = to_profile_for(conn, &user,  None);
+/// assert_eq!(user_profile.following, false);
+/// ```
+pub fn to_profile_for(conn: &PgConnection, user_from: &User, user_for_id: Option<i32>) -> Profile {
+    use crate::db::profiles::is_following;
+    let following = user_for_id.map_or(false, |user_id| is_following(conn, user_from, user_id));
+    Profile::new(
+        user_from.username.clone(),
+        user_from.bio.clone(),
+        user_from.image.clone(),
+        following,
+    )
+}
 
 #[derive(Insertable)]
 #[table_name = "users"]

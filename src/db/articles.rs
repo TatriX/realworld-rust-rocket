@@ -1,4 +1,5 @@
 use crate::db::profiles::is_following;
+use crate::db::users::to_profile_for;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
 use crate::schema::articles;
@@ -124,7 +125,7 @@ pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) ->
         .expect("Cannot load articles")
         .into_iter()
         .map(|(article, author, favorited)| {
-            article.attach(author.to_profile_for(conn, user_id), favorited)
+            article.attach(to_profile_for(conn, &author, user_id), favorited)
         })
         .collect()
 }
@@ -176,7 +177,7 @@ pub fn feed(conn: &PgConnection, params: &FeedArticles, user_id: i32) -> Vec<Art
         .expect("Cannot load feed")
         .into_iter()
         .map(|(article, author, favorited)| {
-            article.attach(author.to_profile_for(conn, Some(user_id)), favorited)
+            article.attach(to_profile_for(conn, &author, Some(user_id)), favorited)
         })
         .collect()
 }
