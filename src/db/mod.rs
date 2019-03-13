@@ -4,11 +4,11 @@ pub mod profiles;
 pub mod users;
 
 use dotenv::dotenv;
+use std::env;
 use std::ops::Deref;
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
-use std::env;
 
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
