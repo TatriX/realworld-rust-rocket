@@ -25,14 +25,16 @@ pub fn init_pool() -> Pool {
     r2d2::Pool::new(manager).expect("db pool")
 }
 
-pub struct Conn(pub PooledConnection);
+pub struct Conn {
+    pub pooled_conn: PooledConnection,
+}
 
 impl Deref for Conn {
     type Target = PgConnection;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.pooled_conn
     }
 }
 
@@ -42,7 +44,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Conn {
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Conn, Self::Error> {
         let pool = request.guard::<State<Pool>>()?;
         match pool.get() {
-            Ok(conn) => Outcome::Success(Conn(conn)),
+            Ok(conn) => Outcome::Success(Conn { pooled_conn: conn }),
             Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
         }
     }
