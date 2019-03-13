@@ -44,7 +44,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Conn {
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Conn, Self::Error> {
         let pool = request.guard::<State<Pool>>()?;
         match pool.get() {
-            Ok(conn) => Outcome::Success(Conn { pooled_conn: conn }),
+            Ok(pooled_conn) => Outcome::Success(Conn { pooled_conn }),
             Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
         }
     }
