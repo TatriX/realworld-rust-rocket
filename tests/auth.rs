@@ -1,17 +1,10 @@
 use reqwest;
-
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate serde_json;
-
-#[macro_use]
-extern crate lazy_static;
-
 use reqwest::Response;
-use serde_json::Value;
+use serde::Deserialize;
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::RwLock;
+use lazy_static::lazy_static;
 
 const API_URL: &'static str = "http://localhost:8000/api";
 
