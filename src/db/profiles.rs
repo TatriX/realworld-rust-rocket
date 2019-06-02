@@ -9,7 +9,7 @@ pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Pro
     let user = users::table
         .filter(users::username.eq(name))
         .get_result(conn)
-        .map_err(|err| println!("find_user_by_name: {}", err))
+        .map_err(|err| eprintln!("find_user_by_name: {}", err))
         .ok()?;
 
     let following = user_id

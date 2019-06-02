@@ -130,7 +130,7 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option
     let article = articles::table
         .filter(articles::slug.eq(slug))
         .first::<Article>(conn)
-        .map_err(|err| println!("articles::find_one: {}", err))
+        .map_err(|err| eprintln!("articles::find_one: {}", err))
         .ok()?;
 
     let favorited = user_id
@@ -191,7 +191,7 @@ pub fn favorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Article
 
         Ok(populate(conn, article, true))
     })
-    .map_err(|err| println!("articles::favorite: {}", err))
+    .map_err(|err| eprintln!("articles::favorite: {}", err))
     .ok()
 }
 
@@ -205,7 +205,7 @@ pub fn unfavorite(conn: &PgConnection, slug: &str, user_id: i32) -> Option<Artic
 
         Ok(populate(conn, article, false))
     })
-    .map_err(|err| println!("articles::unfavorite: {}", err))
+    .map_err(|err| eprintln!("articles::unfavorite: {}", err))
     .ok()
 }
 
@@ -246,7 +246,7 @@ pub fn delete(conn: &PgConnection, slug: &str, user_id: i32) {
     )
     .execute(conn);
     if let Err(err) = result {
-        println!("articles::delete: {}", err);
+        eprintln!("articles::delete: {}", err);
     }
 }
 

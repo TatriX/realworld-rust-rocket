@@ -72,6 +72,6 @@ pub fn delete(conn: &PgConnection, author: i32, slug: &str, comment_id: i32) {
 
     let result = diesel::delete(comments::table.filter(comments::id.eq(comment_id))).execute(conn);
     if let Err(err) = result {
-        println!("comments::delete: {}", err);
+        eprintln!("comments::delete: {}", err);
     }
 }

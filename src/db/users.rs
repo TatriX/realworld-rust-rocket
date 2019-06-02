@@ -34,17 +34,17 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
     let user = users::table
         .filter(users::email.eq(email))
         .get_result::<User>(conn)
-        .map_err(|err| println!("login_user: {}", err))
+        .map_err(|err| eprintln!("login_user: {}", err))
         .ok()?;
 
     let password_matches = scrypt_check(password, &user.hash)
-        .map_err(|err| println!("login_user: scrypt_check: {}", err))
+        .map_err(|err| eprintln!("login_user: scrypt_check: {}", err))
         .ok()?;
 
     if password_matches {
         Some(user)
     } else {
-        println!(
+        eprintln!(
             "login attempt for '{}' failed: password doesn't match",
             email
         );

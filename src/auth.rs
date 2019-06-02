@@ -64,11 +64,11 @@ fn decode_token(token: &str) -> Option<Auth> {
     jwt::decode(token, &config::SECRET.to_string(), jwt::Algorithm::HS256)
         .map(|(_, payload)| {
             serde_json::from_value::<Auth>(payload).map_err(|err| {
-                println!("Auth serde decode error: {:?}", err);
+                eprintln!("Auth serde decode error: {:?}", err);
             }).ok()
         })
         .unwrap_or_else(|err| {
-            println!("Auth decode error: {:?}", err);
+            eprintln!("Auth decode error: {:?}", err);
             None
         })
 }
