@@ -12,7 +12,7 @@ rocket_cors = { version = "0.4.0", default-features = false }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 rust-crypto = "0.2.36"
-frank_jwt = "3.1.0"
+frank_jwt = "3.1.1"
 chrono = {version = "0.4", features = ["serde"]}
 diesel = {version = "1.4.1", features = ["postgres", "chrono", "r2d2"]}
 validator = "0.8.0"

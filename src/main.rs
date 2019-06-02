@@ -13,8 +13,6 @@ use validator;
 #[macro_use]
 extern crate validator_derive;
 
-use frank_jwt as jwt;
-
 mod auth;
 mod config;
 mod db;
