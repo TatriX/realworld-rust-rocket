@@ -38,7 +38,7 @@ fn get(path: &str) -> Response {
 
     reqwest::Client::new()
         .get(&make_url(path))
-        .bearer_auth(token)
+        .header("authorization", format!("Token {}", token))
         .send()
         .expect(&format!("{} get error", path))
 }
@@ -88,6 +88,7 @@ mod a_auth {
                 let body = resp
                     .json::<ValidationErrors>()
                     .expect("Can't parse validation errors");
+
                 if body.errors["username"] != vec!["has already been taken"] {
                     panic!("Got validation errors: {:#?}", body);
                 }
