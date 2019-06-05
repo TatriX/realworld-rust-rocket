@@ -1,0 +1,26 @@
+# -*- restclient -*-
+#
+# This is Emacs restclient file meant for ad hoc testing.
+# See https://github.com/pashky/restclient.el for details.
+
+:username = "stallman"
+:email = "stallman@gnu.org"
+:password ="free sofware"
+ # see https://github.com/pashky/restclient.el/issues/149
+:token := my-restclient-token
+
+# Register user
+POST http://localhost:8000/api/users
+Content-Type: application/json
+
+{"user": {"username": :username, "email": :email, "password": :password}}
+
+# Login
+POST http://localhost:8000/api/users/login
+Content-Type: application/json
+
+{"user": {"email": :email, "password": :password}}
+
+# Get user data. Requires token, so either register or login first.
+GET http://localhost:8000/api/user
+Authorization: Token :token
