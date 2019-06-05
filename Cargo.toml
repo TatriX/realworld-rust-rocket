@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 dotenv = "0.13.0"
-rocket = "0.4.0"
+rocket = { version = "0.4.1", default-features = false }
 rocket_contrib = {version = "0.4.0", default-features = false, features = ["json"]}
 rocket_cors = { version = "0.4.0", default-features = false }
 serde = {version = "1.0", features = ["derive"]}
