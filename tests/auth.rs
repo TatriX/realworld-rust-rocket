@@ -1,144 +1,101 @@
-use reqwest;
-use reqwest::Response;
-use serde::Deserialize;
-use serde_json::{Value, json};
-use std::collections::HashMap;
-use std::sync::RwLock;
-use lazy_static::lazy_static;
+//! Test registration and login
 
-const API_URL: &'static str = "http://localhost:8000/api";
+use realworld;
+use rocket::http::Status;
+use rocket::local::{Client, LocalResponse};
+use rocket::http::{ContentType, Header};
+use serde_json::{json, Value};
 
 const USERNAME: &'static str = "rust-diesel-rocket";
 const EMAIL: &'static str = "rust-diesel-rocket@example.com";
 const PASSWORD: &'static str = "qweasdzxc";
 
-lazy_static! {
-    static ref TOKEN: RwLock<String> = RwLock::new("".to_string());
+/// Utility macro for turning `json!` into string.
+macro_rules! json_string {
+    ($value:tt) => (serde_json::to_string(&json!($value)).expect("cannot json stringify"));
 }
 
-#[derive(Debug, Deserialize)]
-struct ValidationErrors {
-    errors: HashMap<String, Vec<String>>,
+type Token = String;
+
+#[test]
+fn test_auth() {
+    let rocket = realworld::rocket();
+    let client = &Client::new(rocket).expect("valid rocket instance");
+    register(client);
+    let token = login(client);
+    get_current_user(client, token);
 }
 
-fn make_url(path: &str) -> String {
-    format!("{}/{}", API_URL, path)
-}
+///  Register new user, handling repeated registration as well.
+fn register(client: &Client) {
+    let response = &mut client
+        .post("/api/users")
+        .header(ContentType::JSON)
+        .body(json_string!({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}))
+        .dispatch();
 
-fn post(path: &str, json: Value) -> Response {
-    reqwest::Client::new()
-        .post(&make_url(path))
-        .json(&json)
-        .send()
-        .expect(&format!("{} {:#?}: post error", path, json))
-}
-
-fn get(path: &str) -> Response {
-    let token = TOKEN.read().unwrap().to_string();
-
-    reqwest::Client::new()
-        .get(&make_url(path))
-        .header("authorization", format!("Token {}", token))
-        .send()
-        .expect(&format!("{} get error", path))
-}
-
-fn check_response<F>(resp: &mut Response, f: F)
-where
-    F: FnOnce(&mut Response),
-{
-    let status = resp.status();
+    let status = response.status();
+    // If user was already created we should get an UnprocessableEntity or Ok otherwise.
     match status {
-        reqwest::StatusCode::OK => f(resp),
+        Status::Ok => check_user_response(response),
+        Status::UnprocessableEntity => check_user_validation_errors(response),
         _ => panic!("Got status: {}", status),
     }
 }
 
-fn check_user_response(resp: &mut Response) {
-    let wrapper = resp.json::<Value>().expect("Can't parse user");
-    let user = wrapper.get("user").expect("Must have a 'user' field");
+/// Try logging in extracting access Token
+fn login(client: &Client) -> Token {
+    let response = &mut client
+        .post("/api/users/login")
+        .header(ContentType::JSON)
+        .body(json_string!({"user": {"email": EMAIL, "password": PASSWORD}}))
+        .dispatch();
 
-    assert_eq!(user.get("email").expect("User has email"), EMAIL);
-    assert_eq!(user.get("username").expect("User has username"), USERNAME);
+    let wrapper = response_json_value(response);
+    let user = wrapper.get("user").expect("must have a 'user' field");
+    user
+        .get("token")
+        .expect("user has token")
+        .as_str()
+        .expect("token must be a string")
+        .to_string()
+}
+
+/// Check that `/user` endpoint returns expected data.
+fn get_current_user(client: &Client, token: Token) {
+    let response = &mut client
+        .get("/api/user")
+        .header(Header::new("authorization", format!("Token {}", token)))
+        .dispatch();
+    check_user_response(response);
+}
+
+// Utility functions
+
+/// Helper function for converting response to json value.
+fn response_json_value(response: &mut LocalResponse) -> Value {
+    let body = response.body().expect("no body");
+    serde_json::from_reader(body.into_inner()).expect("can't parse value")
+}
+
+/// Assert that body contains "user" response with expected fields.
+fn check_user_response(response: &mut LocalResponse) {
+    let value = response_json_value(response);
+    let user = value.get("user").expect("must have a 'user' field");
+
+    assert_eq!(user.get("email").expect("user has email"), EMAIL);
+    assert_eq!(user.get("username").expect("user has username"), USERNAME);
     assert!(user.get("bio").is_some());
     assert!(user.get("image").is_some());
     assert!(user.get("token").is_some());
 }
 
-// Run with:
-// cargo test -- --test-threads=1
-//
-// We need to run the tests in order. It seems that default test
-// harness run then in alpabet order, so I use letter as module names
-// here.
-
-mod a_auth {
-    use super::*;
-
-    #[test]
-    fn register() {
-        let mut resp = post(
-            "users",
-            json! ({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}),
-        );
-        let status = resp.status();
-        match status {
-            reqwest::StatusCode::OK => check_user_response(&mut resp),
-            reqwest::StatusCode::UNPROCESSABLE_ENTITY => {
-                let body = resp
-                    .json::<ValidationErrors>()
-                    .expect("Can't parse validation errors");
-
-                if body.errors["username"] != vec!["has already been taken"] {
-                    panic!("Got validation errors: {:#?}", body);
-                }
-            }
-            _ => panic!("Got status: {}", status),
-        }
-    }
-}
-
-mod b_auth {
-    use super::*;
-
-    #[test]
-    fn login() {
-        check_response(
-            &mut post(
-                "users/login",
-                json!({"user": {"email": EMAIL, "password": PASSWORD}}),
-            ),
-            check_user_response,
-        );
-    }
-
-    #[test]
-    fn login_and_save_credentials() {
-        check_response(
-            &mut post(
-                "users/login",
-                json!({"user": {"email": EMAIL, "password": PASSWORD}}),
-            ),
-            |resp| {
-                let wrapper = resp.json::<Value>().expect("Can't parse user");
-                let user = wrapper.get("user").expect("Must have a 'user' field");
-                let mut token = TOKEN.write().unwrap();
-                *token = user
-                    .get("token")
-                    .expect("User has token")
-                    .as_str()
-                    .expect("Token must be a string")
-                    .to_string();
-            },
-        );
-    }
-}
-
-mod c_auth {
-    use super::*;
-
-    #[test]
-    fn current_user() {
-        check_response(&mut get("user"), check_user_response)
+fn check_user_validation_errors(response: &mut LocalResponse) {
+    let validation_errors = response_json_value(response);
+    let errors = validation_errors.get("errors").expect("no 'errors' field");
+    let username_errors = errors.get("username").expect("no 'username' errors");
+    let username_error = username_errors.get(0).expect("'username' errors are missing");
+    if username_error.as_str().unwrap() != "has already been taken" {
+        panic!("Got validation errors: {:#?}", validation_errors);
     }
 }
