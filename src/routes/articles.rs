@@ -24,7 +24,7 @@ pub struct NewArticleData {
     tag_list: Vec<String>,
 }
 
-#[post("/articles", format = "application/json", data = "<new_article>")]
+#[post("/articles", format = "json", data = "<new_article>")]
 pub fn post_articles(
     auth: Auth,
     new_article: Json<NewArticle>,
@@ -88,7 +88,7 @@ pub struct UpdateArticle {
     article: db::articles::UpdateArticleData,
 }
 
-#[put("/articles/<slug>", format = "application/json", data = "<article>")]
+#[put("/articles/<slug>", format = "json", data = "<article>")]
 pub fn put_articles(
     slug: String,
     article: Json<UpdateArticle>,
@@ -111,11 +111,7 @@ pub struct NewCommentData {
     body: Option<String>,
 }
 
-#[post(
-    "/articles/<slug>/comments",
-    format = "application/json",
-    data = "<new_comment>"
-)]
+#[post("/articles/<slug>/comments", format = "json", data = "<new_comment>")]
 pub fn post_comment(
     slug: String,
     new_comment: Json<NewComment>,

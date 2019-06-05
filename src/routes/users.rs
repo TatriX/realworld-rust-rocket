@@ -23,7 +23,7 @@ struct NewUserData {
     password: Option<String>,
 }
 
-#[post("/users", format = "application/json", data = "<new_user>")]
+#[post("/users", format = "json", data = "<new_user>")]
 pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
     let new_user = new_user.into_inner().user;
 
@@ -56,7 +56,7 @@ struct LoginUserData {
     password: Option<String>,
 }
 
-#[post("/users/login", format = "application/json", data = "<user>")]
+#[post("/users/login", format = "json", data = "<user>")]
 pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
     let user = user.into_inner().user;
 
@@ -80,7 +80,7 @@ pub struct UpdateUser {
     user: db::users::UpdateUserData,
 }
 
-#[put("/user", format = "application/json", data = "<user>")]
+#[put("/user", format = "json", data = "<user>")]
 pub fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
     db::users::update(&conn, auth.id, &user.user)
         .map(|user| Json(json!({ "user": user.to_user_auth() })))
