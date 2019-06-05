@@ -27,15 +27,18 @@ cargo install diesel_cli --no-default-features --features "postgres"
 diesel migration run
 
 cargo run
-# from another term or use postman
-cargo test -- --test-threads=1
 ```
+
+## Testing
+Simply run:
+```sh
+cargo test
+```
+You can also check postman/newman. See `/tests` directory.
 
 # How it works
 
 Checkout Rocket's amazing [guide](https://rocket.rs/guide/)
-
-
 
 ### Features
 To use random suffixes for articles, compile with `random_suffix` feature.
