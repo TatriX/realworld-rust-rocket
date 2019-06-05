@@ -32,8 +32,6 @@ fn not_found() -> JsonValue {
 }
 
 pub fn rocket() -> rocket::Rocket {
-    let pool = db::init_pool();
-
     rocket::ignite()
         .mount(
             "/api",
@@ -59,7 +57,7 @@ pub fn rocket() -> rocket::Rocket {
                 routes::profiles::unfollow,
             ],
         )
-        .manage(pool)
+        .attach(db::Conn::fairing())
         .attach(rocket_cors::Cors::default())
         .register(catchers![not_found])
 }

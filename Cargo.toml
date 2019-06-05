@@ -1,24 +1,27 @@
 [package]
 authors = ["TatriX <tatrics@gmail.com>"]
 name = "realworld"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2018"
 
 [dependencies]
-dotenv = "0.13.0"
 rocket = { version = "0.4.1", default-features = false }
-rocket_contrib = {version = "0.4.0", default-features = false, features = ["json"]}
 rocket_cors = { version = "0.4.0", default-features = false }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 rust-crypto = "0.2.36"
 frank_jwt = "3.1.1"
 chrono = {version = "0.4", features = ["serde"]}
-diesel = {version = "1.4.1", features = ["postgres", "chrono", "r2d2"]}
+diesel = {version = "1.4.1", features = ["postgres", "chrono"]}
 validator = "0.8.0"
 validator_derive = "0.8.0"
 slug = "0.1.2"
 rand = "0.6.3"
+
+[dependencies.rocket_contrib]
+version = "0.4.1"
+default-features = false
+features = ["json", "diesel_postgres_pool"]
 
 [features]
 default = ["random-suffix"]

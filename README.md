@@ -37,7 +37,8 @@ cargo test
 You can also check postman/newman. See `/tests` directory.
 
 # How it works
-
+`diesel` cli uses `.env` file.
+Rocket reads database configuration from `Rocket.toml` file.
 Checkout Rocket's amazing [guide](https://rocket.rs/guide/)
 
 ### Features
@@ -50,3 +51,4 @@ cargo run --no-default-features
 ### TODO
 1. Use insert into table (...) select
 2. Error handling: either `snafu`, `failure` or `error_chain`
+3. Consider using rockets custom config and reading db url from `.env`
