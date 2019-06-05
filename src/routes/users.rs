@@ -8,6 +8,7 @@ use crate::errors::{Errors, FieldValidator};
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
 use validator::Validate;
+
 #[derive(Deserialize)]
 pub struct NewUser {
     user: NewUserData,
@@ -24,7 +25,7 @@ struct NewUserData {
 }
 
 #[post("/users", format = "json", data = "<new_user>")]
-pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
+pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<JsonValue, Errors> {
     let new_user = new_user.into_inner().user;
 
     let mut extractor = FieldValidator::validate(&new_user);
@@ -42,7 +43,7 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<Json<JsonVa
     extractor.check()?;
 
     let user = db::users::create(&conn, &username, &email, &password);
-    Ok(Json(json!({ "user": user.to_user_auth() })))
+    Ok(json!({ "user": user.to_user_auth() }))
 }
 
 #[derive(Deserialize)]
@@ -57,7 +58,7 @@ struct LoginUserData {
 }
 
 #[post("/users/login", format = "json", data = "<user>")]
-pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<JsonValue>, Errors> {
+pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<JsonValue, Errors> {
     let user = user.into_inner().user;
 
     let mut extractor = FieldValidator::default();
@@ -66,13 +67,13 @@ pub fn post_users_login(user: Json<LoginUser>, conn: db::Conn) -> Result<Json<Js
     extractor.check()?;
 
     db::users::login(&conn, &email, &password)
-        .map(|user| Json(json!({ "user": user.to_user_auth() })))
+        .map(|user| json!({ "user": user.to_user_auth() }))
         .ok_or_else(|| Errors::new(&[("email or password", "is invalid")]))
 }
 
 #[get("/user")]
-pub fn get_user(auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
-    db::users::find(&conn, auth.id).map(|user| Json(json!({ "user": user.to_user_auth() })))
+pub fn get_user(auth: Auth, conn: db::Conn) -> Option<JsonValue> {
+    db::users::find(&conn, auth.id).map(|user| json!({ "user": user.to_user_auth() }))
 }
 
 #[derive(Deserialize)]
@@ -81,7 +82,6 @@ pub struct UpdateUser {
 }
 
 #[put("/user", format = "json", data = "<user>")]
-pub fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<Json<JsonValue>> {
-    db::users::update(&conn, auth.id, &user.user)
-        .map(|user| Json(json!({ "user": user.to_user_auth() })))
+pub fn put_user(user: Json<UpdateUser>, auth: Auth, conn: db::Conn) -> Option<JsonValue> {
+    db::users::update(&conn, auth.id, &user.user).map(|user| json!({ "user": user.to_user_auth() }))
 }

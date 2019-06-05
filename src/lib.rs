@@ -21,14 +21,14 @@ mod models;
 mod routes;
 mod schema;
 
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::json::JsonValue;
 
 #[catch(404)]
-fn not_found() -> Json<JsonValue> {
-    Json(json!({
+fn not_found() -> JsonValue {
+    json!({
         "status": "error",
         "reason": "Resource was not found."
-    }))
+    })
 }
 
 pub fn rocket() -> rocket::Rocket {
