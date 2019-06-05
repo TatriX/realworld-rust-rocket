@@ -1,4 +1,5 @@
 use rocket::request::{self, FromRequest, Request};
+use rocket::http::Status;
 use rocket::Outcome;
 use serde::{Deserialize, Serialize};
 
@@ -33,11 +34,15 @@ impl Auth {
 impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, ()> {
+    /// Extract Auth token from the "Authorization" header.
+    ///
+    /// Handlers with Auth guard will fail with 503 error.
+    /// Handlers with Option<Auth> will be called with None.
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, Self::Error> {
         if let Some(auth) = extract_auth_from_request(request) {
             Outcome::Success(auth)
         } else {
-            Outcome::Forward(())
+            Outcome::Failure((Status::Forbidden, ()))
         }
     }
 }
