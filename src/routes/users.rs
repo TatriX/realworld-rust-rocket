@@ -1,5 +1,8 @@
 use crate::auth::Auth;
-use crate::db::{self, users::{email_exists, username_exists}};
+use crate::db::{
+    self,
+    users::{email_exists, username_exists},
+};
 use crate::errors::{Errors, FieldValidator};
 
 use rocket_contrib::json::{Json, JsonValue};

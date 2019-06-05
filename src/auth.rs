@@ -43,7 +43,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 }
 
 fn extract_auth_from_request(request: &Request) -> Option<Auth> {
-    request.headers()
+    request
+        .headers()
         .get_one("authorization")
         .and_then(extract_token_from_header)
         .and_then(decode_token)
@@ -57,15 +58,16 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
     }
 }
 
-
 /// Decode token into `Auth` struct. If any error is encountered, log it
 /// an return None.
 fn decode_token(token: &str) -> Option<Auth> {
     jwt::decode(token, &config::SECRET.to_string(), jwt::Algorithm::HS256)
         .map(|(_, payload)| {
-            serde_json::from_value::<Auth>(payload).map_err(|err| {
-                eprintln!("Auth serde decode error: {:?}", err);
-            }).ok()
+            serde_json::from_value::<Auth>(payload)
+                .map_err(|err| {
+                    eprintln!("Auth serde decode error: {:?}", err);
+                })
+                .ok()
         })
         .unwrap_or_else(|err| {
             eprintln!("Auth decode error: {:?}", err);

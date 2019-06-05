@@ -2,8 +2,8 @@
 
 use realworld;
 use rocket::http::Status;
-use rocket::local::{Client, LocalResponse};
 use rocket::http::{ContentType, Header};
+use rocket::local::{Client, LocalResponse};
 use serde_json::{json, Value};
 
 const USERNAME: &'static str = "rust-diesel-rocket";
@@ -12,7 +12,9 @@ const PASSWORD: &'static str = "qweasdzxc";
 
 /// Utility macro for turning `json!` into string.
 macro_rules! json_string {
-    ($value:tt) => (serde_json::to_string(&json!($value)).expect("cannot json stringify"));
+    ($value:tt) => {
+        serde_json::to_string(&json!($value)).expect("cannot json stringify")
+    };
 }
 
 type Token = String;
@@ -52,8 +54,9 @@ fn login(client: &Client) -> Token {
         .dispatch();
 
     let wrapper = response_json_value(response);
-    let user = wrapper.get("user").expect("must have a 'user' field");
-    user
+    wrapper
+        .get("user")
+        .expect("must have a 'user' field")
         .get("token")
         .expect("user has token")
         .as_str()
@@ -94,7 +97,9 @@ fn check_user_validation_errors(response: &mut LocalResponse) {
     let validation_errors = response_json_value(response);
     let errors = validation_errors.get("errors").expect("no 'errors' field");
     let username_errors = errors.get("username").expect("no 'username' errors");
-    let username_error = username_errors.get(0).expect("'username' errors are missing");
+    let username_error = username_errors
+        .get(0)
+        .expect("'username' errors are missing");
     if username_error.as_str().unwrap() != "has already been taken" {
         panic!("Got validation errors: {:#?}", validation_errors);
     }
