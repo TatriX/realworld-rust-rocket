@@ -55,7 +55,7 @@ pub fn create(
 }
 
 fn slugify(title: &str) -> String {
-    if cfg!(feature = "random_suffix") {
+    if cfg!(feature = "random-suffix") {
         format!("{}-{}", slug::slugify(title), generate_suffix(SUFFIX_LEN))
     } else {
         slug::slugify(title)

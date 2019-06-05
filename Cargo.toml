@@ -19,3 +19,10 @@ validator = "0.8.0"
 validator_derive = "0.8.0"
 slug = "0.1.2"
 rand = "0.6.3"
+
+[features]
+default = ["random-suffix"]
+
+# Enable generation of random suffix when making article slug. This
+# allows having multiple articles with the same title.
+random-suffix = []

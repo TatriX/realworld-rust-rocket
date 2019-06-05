@@ -41,9 +41,9 @@ You can also check postman/newman. See `/tests` directory.
 Checkout Rocket's amazing [guide](https://rocket.rs/guide/)
 
 ### Features
-To use random suffixes for articles, compile with `random_suffix` feature.
+By default random suffixes feature is enabled, so one could easily create multiple articles with the same title. To disable it:
 ```sh
-cargo run --feature random_suffix
+cargo run --no-default-features
 
 ```
 
