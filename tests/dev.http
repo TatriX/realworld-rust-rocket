@@ -3,24 +3,138 @@
 # This is Emacs restclient file meant for ad hoc testing.
 # See https://github.com/pashky/restclient.el for details.
 
-:username = "stallman"
-:email = "stallman@gnu.org"
-:password ="free sofware"
- # see https://github.com/pashky/restclient.el/issues/149
+# see https://github.com/pashky/restclient.el/issues/149
 :token := my-restclient-token
+:comment-id := my-restclient-comment-id
 
-# Register user
+## Users
+
+# Register user "tester". He will follow "stallman"
 POST http://localhost:8000/api/users
 Content-Type: application/json
 
-{"user": {"username": :username, "email": :email, "password": :password}}
+{"user": {"username": "tester", "email": "tester@realworld.io", "password": "rust is awesome"}}
 
-# Login
+# Register user "stallman". He will write articles
+POST http://localhost:8000/api/users
+Content-Type: application/json
+
+{"user": {"username": "stallman", "email": "stallman@gnu.org", "password": "free software"}}
+
+# Login as "tester"
 POST http://localhost:8000/api/users/login
 Content-Type: application/json
 
-{"user": {"email": :email, "password": :password}}
+{"user": {"email": "tester@realworld.io", "password": "rust is awesome"}}
+
+# Login as "stallman"
+POST http://localhost:8000/api/users/login
+Content-Type: application/json
+
+{"user": {"email": "stallman@gnu.org", "password": "free software"}}
 
 # Get user data. Requires token, so either register or login first.
 GET http://localhost:8000/api/user
 Authorization: Token :token
+
+# Update user bio
+PUT http://localhost:8000/api/user
+Content-Type: application/json
+Authorization: Token :token
+
+{"user": {"bio": "I made FSF"}}
+
+## Articles
+
+# Create new article.
+#
+# Other article related routes need a slug, so consider disabled
+# randomized slug suffixes: `cargo run --no-default-features`
+POST http://localhost:8000/api/articles
+Content-Type: application/json
+Authorization: Token :token
+
+{
+    "article": {
+        "title": "Test article",
+        "description": "Just some tests",
+        "body": "Lorem ipsum",
+        "tagList": [
+            "foo",
+            "bar"
+        ]
+    }
+}
+
+# Get article anonymously
+GET http://localhost:8000/api/articles/test-article
+
+# Get article as current user
+GET http://localhost:8000/api/articles/test-article
+Authorization: Token :token
+
+# Update article description and overwrite tags
+PUT http://localhost:8000/api/articles/test-article
+Content-Type: application/json
+Authorization: Token :token
+
+{"article": {"description": "New description", "tagList": ["baz"]}}
+
+# Delete test article
+DELETE http://localhost:8000/api/articles/test-article
+Authorization: Token :token
+
+# Like article
+POST http://localhost:8000/api/articles/test-article/favorite
+Authorization: Token :token
+
+# Unlike article
+DELETE http://localhost:8000/api/articles/test-article/favorite
+Authorization: Token :token
+
+# Post comment
+POST http://localhost:8000/api/articles/test-article/comments
+Content-Type: application/json
+Authorization: Token :token
+
+{"comment": {"body": "This is amazing!"}}
+
+# Get comments
+GET http://localhost:8000/api/articles/test-article/comments
+
+# Delete comment. Get id from the "Get comments" and (setq my-restclient-comment-id 3)
+DELETE http://localhost:8000/api/articles/test-article/comments/:comment-id
+Authorization: Token :token
+
+## Articles
+# Auth is optional.
+
+# Get articles as current user
+GET http://localhost:8000/api/articles
+Authorization: Token :token
+
+# Get articles feed. First login as "tester" and follow "stallman".
+GET http://localhost:8000/api/articles/feed
+Authorization: Token :token
+
+## Profiles
+
+# Get profile anonymously
+GET http://localhost:8000/api/profiles/stallman
+
+# Get profile as current user
+GET http://localhost:8000/api/profiles/stallman
+Authorization: Token :token
+
+# Follow "stallman". Must be logged in as "tester".
+POST http://localhost:8000/api/profiles/stallman/follow
+Authorization: Token :token
+
+# Unfollow "stallman". Must be logged in as "tester".
+DELETE http://localhost:8000/api/profiles/stallman/follow
+Authorization: Token :token
+
+## Tags
+
+# Get tags
+GET http://localhost:8000/api/tags
