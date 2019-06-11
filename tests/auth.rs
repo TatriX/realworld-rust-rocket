@@ -24,6 +24,7 @@ fn test_auth() {
     let rocket = realworld::rocket();
     let client = &Client::new(rocket).expect("valid rocket instance");
     register(client);
+    incorrect_login(client);
     let token = login(client);
     get_current_user(client, token);
 }
@@ -43,6 +44,29 @@ fn register(client: &Client) {
         Status::UnprocessableEntity => check_user_validation_errors(response),
         _ => panic!("Got status: {}", status),
     }
+}
+
+/// Login with wrong password must fail
+fn incorrect_login(client: &Client) {
+    let response = &mut client
+        .post("/api/users/login")
+        .header(ContentType::JSON)
+        .body(json_string!({"user": {"email": EMAIL, "password": "foo"}}))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::UnprocessableEntity);
+
+    let value = response_json_value(response);
+    let login_error = value
+        .get("errors")
+        .expect("must have a 'errors' field")
+        .get("email or password")
+        .expect("must have 'email or password' errors")
+        .get(0)
+        .expect("must have non empty 'email or password' errors")
+        .as_str();
+
+    assert_eq!(login_error, Some("is invalid"));
 }
 
 /// Try logging in extracting access Token
@@ -94,13 +118,16 @@ fn check_user_response(response: &mut LocalResponse) {
 }
 
 fn check_user_validation_errors(response: &mut LocalResponse) {
-    let validation_errors = response_json_value(response);
-    let errors = validation_errors.get("errors").expect("no 'errors' field");
-    let username_errors = errors.get("username").expect("no 'username' errors");
-    let username_error = username_errors
+    let value = response_json_value(response);
+    let username_error = value
+        .get("errors")
+        .expect("must have a 'errors' field")
+        .get("username")
+        .expect("must have 'username' errors")
         .get(0)
-        .expect("'username' errors are missing");
-    if username_error.as_str().unwrap() != "has already been taken" {
-        panic!("Got validation errors: {:#?}", validation_errors);
-    }
+        .expect("must have non-empty 'username' errors")
+        .as_str();
+
+    assert_eq!(username_error, Some("has already been taken"))
+
 }
