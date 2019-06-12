@@ -17,7 +17,7 @@ macro_rules! json_string {
     };
 }
 
-type Token = String;
+pub type Token = String;
 
 pub fn test_client() -> Client {
     let rocket = realworld::rocket();

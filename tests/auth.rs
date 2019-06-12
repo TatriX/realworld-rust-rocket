@@ -18,6 +18,9 @@ fn test_register() {
 
     let status = response.status();
     // If user was already created we should get an UnprocessableEntity or Ok otherwise.
+    //
+    // As tests are ran in an indepent order `login()` probably has already created smoketest user.
+    // And so we gracefully handle "user already exists" error here.
     match status {
         Status::Ok => check_user_response(response),
         Status::UnprocessableEntity => check_user_validation_errors(response),
