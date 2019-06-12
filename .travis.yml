@@ -1,11 +1,16 @@
 language: rust
 sudo: required
-addons:
-    apt:
-        packages:
-            - libssl-dev
 rust: nightly
 cache: cargo
+
+# Required for tarpaulin
+addons:
+  apt:
+    packages:
+      - libssl-dev
+
+notifications:
+  email: false
 
 before_cache: cargo install cargo-tarpaulin -f
 
