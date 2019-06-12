@@ -3,10 +3,8 @@
 mod common;
 
 use common::*;
-use rocket::http::Status;
-use rocket::http::{ContentType, Header};
+use rocket::http::{ContentType, Status};
 use rocket::local::LocalResponse;
-use serde_json::json;
 
 #[test]
 /// Register new user, handling repeated registration as well.
@@ -28,7 +26,7 @@ fn test_register() {
 }
 
 #[test]
-/// Login with wrong password must fail
+/// Login with wrong password must fail.
 fn test_incorrect_login() {
     let client = test_client();
     let response = &mut client
@@ -53,8 +51,23 @@ fn test_incorrect_login() {
 }
 
 #[test]
+/// Try logging checking that access Token is present.
 fn test_login() {
-    login(&test_client());
+    let client = test_client();
+    let response = &mut client
+        .post("/api/users/login")
+        .header(ContentType::JSON)
+        .body(json_string!({"user": {"email": EMAIL, "password": PASSWORD}}))
+        .dispatch();
+
+    let value = response_json_value(response);
+    value
+        .get("user")
+        .expect("must have a 'user' field")
+        .get("token")
+        .expect("user has token")
+        .as_str()
+        .expect("token must be a string");
 }
 
 #[test]
@@ -64,8 +77,9 @@ fn test_get_current_user() {
     let token = login(&client);
     let response = &mut client
         .get("/api/user")
-        .header(Header::new("authorization", format!("Token {}", token)))
+        .header(token_header(token))
         .dispatch();
+
     check_user_response(response);
 }
 
