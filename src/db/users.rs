@@ -1,9 +1,9 @@
 use crate::models::user::User;
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
-use diesel::dsl::{exists, select};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::{DatabaseErrorKind, Error};
 use serde::Deserialize;
 
 #[derive(Insertable)]
@@ -14,7 +14,30 @@ pub struct NewUser<'a> {
     pub hash: &'a str,
 }
 
-pub fn create(conn: &PgConnection, username: &str, email: &str, password: &str) -> User {
+pub enum UserCreationError {
+    DuplicatedEmail,
+    DuplicatedUsername,
+}
+
+impl From<Error> for UserCreationError {
+    fn from(err: Error) -> UserCreationError {
+        if let Error::DatabaseError(DatabaseErrorKind::UniqueViolation, info) = &err {
+            match info.constraint_name() {
+                Some("users_username_key") => return UserCreationError::DuplicatedUsername,
+                Some("users_email_key") => return UserCreationError::DuplicatedEmail,
+                _ => {}
+            }
+        }
+        panic!("Error creating user: {:?}", err)
+    }
+}
+
+pub fn create(
+    conn: &PgConnection,
+    username: &str,
+    email: &str,
+    password: &str,
+) -> Result<User, UserCreationError> {
     // see https://blog.filippo.io/the-scrypt-parameters
     let hash = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
 
@@ -26,8 +49,8 @@ pub fn create(conn: &PgConnection, username: &str, email: &str, password: &str) 
 
     diesel::insert_into(users::table)
         .values(new_user)
-        .get_result(conn)
-        .expect("Error saving user")
+        .get_result::<User>(conn)
+        .map_err(Into::into)
 }
 
 pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
@@ -83,16 +106,4 @@ pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<Use
         .set(data)
         .get_result(conn)
         .ok()
-}
-
-pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
-    select(exists(users::table.filter(users::username.eq(username))))
-        .get_result(conn)
-        .expect("exist username")
-}
-
-pub fn email_exists(conn: &PgConnection, email: &str) -> bool {
-    select(exists(users::table.filter(users::email.eq(email))))
-        .get_result(conn)
-        .expect("exist email")
 }

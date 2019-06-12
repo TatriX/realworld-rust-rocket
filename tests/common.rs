@@ -72,9 +72,11 @@ fn register(client: &Client) {
     let response = client
         .post("/api/users")
         .header(ContentType::JSON)
-        .body(
-            json_string!({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}),
-        )
+        .body(json_string!({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}))
         .dispatch();
-    assert_eq!(response.status(), Status::Ok);
+
+    match response.status() {
+        Status::Ok | Status::UnprocessableEntity => {} // ok,
+        status => panic!("Registration failed: {}", status)
+    }
 }

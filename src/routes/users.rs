@@ -1,8 +1,5 @@
 use crate::auth::Auth;
-use crate::db::{
-    self,
-    users::{email_exists, username_exists},
-};
+use crate::db::{self, users::UserCreationError};
 use crate::errors::{Errors, FieldValidator};
 
 use rocket_contrib::json::{Json, JsonValue};
@@ -33,17 +30,17 @@ pub fn post_users(new_user: Json<NewUser>, conn: db::Conn) -> Result<JsonValue, 
     let email = extractor.extract("email", new_user.email);
     let password = extractor.extract("password", new_user.password);
 
-    if username_exists(&conn, &username) {
-        extractor.add_error("username", "has already been taken");
-    }
-    if email_exists(&conn, &email) {
-        extractor.add_error("email", "has already been taken");
-    }
-
     extractor.check()?;
 
-    let user = db::users::create(&conn, &username, &email, &password);
-    Ok(json!({ "user": user.to_user_auth() }))
+    db::users::create(&conn, &username, &email, &password)
+        .map(|user| json!({ "user": user.to_user_auth() }))
+        .map_err(|error| {
+            let field = match error {
+                UserCreationError::DuplicatedEmail => "email",
+                UserCreationError::DuplicatedUsername => "username",
+            };
+            Errors::new(&[(field, "has already been taken")])
+        })
 }
 
 #[derive(Deserialize)]

@@ -73,9 +73,6 @@ impl FieldValidator {
             })
         }
     }
-    pub fn add_error(&mut self, field_name: FieldName, code: FieldErrorCode) {
-        self.errors.add(field_name, ValidationError::new(code))
-    }
 
     pub fn extract<T>(&mut self, field_name: &'static str, field: Option<T>) -> T
     where
