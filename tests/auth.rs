@@ -1,36 +1,17 @@
 //! Test registration and login
 
-use realworld;
+mod common;
+
+use common::*;
 use rocket::http::Status;
 use rocket::http::{ContentType, Header};
-use rocket::local::{Client, LocalResponse};
-use serde_json::{json, Value};
-
-const USERNAME: &'static str = "rust-diesel-rocket";
-const EMAIL: &'static str = "rust-diesel-rocket@example.com";
-const PASSWORD: &'static str = "qweasdzxc";
-
-/// Utility macro for turning `json!` into string.
-macro_rules! json_string {
-    ($value:tt) => {
-        serde_json::to_string(&json!($value)).expect("cannot json stringify")
-    };
-}
-
-type Token = String;
+use rocket::local::LocalResponse;
+use serde_json::json;
 
 #[test]
-fn test_auth() {
-    let rocket = realworld::rocket();
-    let client = &Client::new(rocket).expect("valid rocket instance");
-    register(client);
-    incorrect_login(client);
-    let token = login(client);
-    get_current_user(client, token);
-}
-
-///  Register new user, handling repeated registration as well.
-fn register(client: &Client) {
+/// Register new user, handling repeated registration as well.
+fn test_register() {
+    let client = test_client();
     let response = &mut client
         .post("/api/users")
         .header(ContentType::JSON)
@@ -46,8 +27,10 @@ fn register(client: &Client) {
     }
 }
 
+#[test]
 /// Login with wrong password must fail
-fn incorrect_login(client: &Client) {
+fn test_incorrect_login() {
+    let client = test_client();
     let response = &mut client
         .post("/api/users/login")
         .header(ContentType::JSON)
@@ -69,27 +52,16 @@ fn incorrect_login(client: &Client) {
     assert_eq!(login_error, Some("is invalid"));
 }
 
-/// Try logging in extracting access Token
-fn login(client: &Client) -> Token {
-    let response = &mut client
-        .post("/api/users/login")
-        .header(ContentType::JSON)
-        .body(json_string!({"user": {"email": EMAIL, "password": PASSWORD}}))
-        .dispatch();
-
-    let wrapper = response_json_value(response);
-    wrapper
-        .get("user")
-        .expect("must have a 'user' field")
-        .get("token")
-        .expect("user has token")
-        .as_str()
-        .expect("token must be a string")
-        .to_string()
+#[test]
+fn test_login() {
+    login(&test_client());
 }
 
+#[test]
 /// Check that `/user` endpoint returns expected data.
-fn get_current_user(client: &Client, token: Token) {
+fn test_get_current_user() {
+    let client = test_client();
+    let token = login(&client);
     let response = &mut client
         .get("/api/user")
         .header(Header::new("authorization", format!("Token {}", token)))
@@ -98,12 +70,6 @@ fn get_current_user(client: &Client, token: Token) {
 }
 
 // Utility functions
-
-/// Helper function for converting response to json value.
-fn response_json_value(response: &mut LocalResponse) -> Value {
-    let body = response.body().expect("no body");
-    serde_json::from_reader(body.into_inner()).expect("can't parse value")
-}
 
 /// Assert that body contains "user" response with expected fields.
 fn check_user_response(response: &mut LocalResponse) {
@@ -129,5 +95,4 @@ fn check_user_validation_errors(response: &mut LocalResponse) {
         .as_str();
 
     assert_eq!(username_error, Some("has already been taken"))
-
 }
