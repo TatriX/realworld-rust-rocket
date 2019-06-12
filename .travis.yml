@@ -1,16 +1,14 @@
-language: rust
+dist: xenial
 sudo: required
+language: rust
 rust: nightly
 cache: cargo
 
-# Required for tarpaulin
+
 addons:
   apt:
     packages:
-      - libssl-dev
-
-notifications:
-  email: false
+      - libssl-dev # Required for tarpaulin
 
 before_cache: cargo install cargo-tarpaulin -f
 
@@ -29,3 +27,6 @@ script:
 after_success: |
     cargo tarpaulin --out Xml
     bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  email: false
