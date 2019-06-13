@@ -29,6 +29,36 @@ fn test_register() {
 }
 
 #[test]
+/// Registration with the same email must fail
+fn test_register_with_duplicated_email() {
+    let client = test_client();
+    register(client, "clone", "clone@realworld.io", PASSWORD);
+
+    let response = &mut client
+        .post("/api/users")
+        .header(ContentType::JSON)
+        .body(json_string!({
+            "user": {
+                "username": "clone_1",
+                "email": "clone@realworld.io",
+                "password": PASSWORD,
+            },
+        }))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::UnprocessableEntity);
+
+    let value = response_json_value(response);
+    let error = value
+        .get("errors")
+        .and_then(|errors| errors.get("email"))
+        .and_then(|errors| errors.get(0))
+        .and_then(|error| error.as_str());
+
+    assert_eq!(error, Some("has already been taken"))
+}
+
+#[test]
 /// Login with wrong password must fail.
 fn test_incorrect_login() {
     let client = test_client();
@@ -75,12 +105,27 @@ fn test_login() {
 
 #[test]
 /// Check that `/user` endpoint returns expected data.
-fn test_get_current_user() {
+fn test_get_user() {
     let client = test_client();
     let token = login(&client);
     let response = &mut client
         .get("/api/user")
         .header(token_header(token))
+        .dispatch();
+
+    check_user_response(response);
+}
+
+#[test]
+/// Test user updating.
+fn test_put_user() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut client
+        .put("/api/user")
+        .header(token_header(token))
+        .header(ContentType::JSON)
+        .body(json_string!({"user": {"bio": "I'm doing Rust!"}}))
         .dispatch();
 
     check_user_response(response);
