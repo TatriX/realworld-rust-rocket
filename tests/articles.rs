@@ -145,7 +145,7 @@ fn test_unfavorite_article() {
 }
 
 #[test]
-/// Test getting multiple articles .
+/// Test getting multiple articles.
 fn test_get_articles() {
     let client = test_client();
     let token = login(&client);
@@ -165,13 +165,34 @@ fn test_get_articles() {
 }
 
 #[test]
+/// Test getting multiple articles with params.
+fn test_get_articles_with_params() {
+    let client = test_client();
+    let token = login(&client);
+    create_article(&client, token);
+
+    let url = "/api/articles?tag=foo&author=smoketest&favorited=smoketest&limit=1&offset=0";
+    let response = &mut client.get(url).dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+
+    let value = response_json_value(response);
+    value
+        .get("articlesCount")
+        .and_then(|count| count.as_i64())
+        .expect("must have 'articlesCount' field");
+}
+
+
+#[test]
 /// Test getting articles feed.
 fn test_get_articles_fedd() {
     let client = test_client();
     let token = login(&client);
 
+    let url = "/api/articles/feed?limit=1&offset=0";
     let response = &mut client
-        .get("/api/articles/feed")
+        .get(url)
         .header(token_header(token))
         .dispatch();
 

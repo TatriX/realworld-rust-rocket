@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 //! This file contains utility functions used by all tests.
 
 use realworld;
@@ -33,7 +35,7 @@ pub fn test_client() -> &'static Client {
 /// Retrieve a token registering a user if required.
 pub fn login(client: &Client) -> Token {
     try_login(client).unwrap_or_else(|| {
-        register(client);
+        register(client, USERNAME, EMAIL, PASSWORD);
         try_login(client).expect("Cannot login")
     })
 }
@@ -73,12 +75,12 @@ fn try_login(client: &Client) -> Option<Token> {
     Some(token)
 }
 
-/// Register default user for quick `login()`.
-fn register(client: &Client) {
+/// Register user for
+pub fn register(client: &Client, username: &str, email: &str, password: &str) {
     let response = client
         .post("/api/users")
         .header(ContentType::JSON)
-        .body(json_string!({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}))
+        .body(json_string!({"user": {"username": username, "email": email, "password": password}}))
         .dispatch();
 
     match response.status() {
