@@ -23,6 +23,9 @@ version = "0.4.1"
 default-features = false
 features = ["json", "diesel_postgres_pool"]
 
+[dev-dependencies]
+once_cell = "0.2.1"
+
 [features]
 default = ["random-suffix"]
 

@@ -4,6 +4,7 @@ use realworld;
 use rocket::http::{ContentType, Header, Status};
 use rocket::local::{Client, LocalResponse};
 use serde_json::Value;
+use once_cell::sync::OnceCell;
 
 pub const USERNAME: &'static str = "smoketest";
 pub const EMAIL: &'static str = "smoketest@realworld.io";
@@ -19,9 +20,14 @@ macro_rules! json_string {
 
 pub type Token = String;
 
-pub fn test_client() -> Client {
-    let rocket = realworld::rocket();
-    Client::new(rocket).expect("valid rocket instance")
+
+pub fn test_client() -> &'static Client {
+    static INSTANCE: OnceCell<Client> = OnceCell::new();
+    INSTANCE.get_or_init(|| {
+        let rocket = realworld::rocket();
+        Client::new(rocket).expect("valid rocket instance")
+    })
+
 }
 
 /// Retrieve a token registering a user if required.
