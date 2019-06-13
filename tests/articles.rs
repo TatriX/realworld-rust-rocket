@@ -29,17 +29,15 @@ fn test_post_articles() {
 
 #[test]
 /// Test article retrieval.
-fn test_get_articles() {
+fn test_get_article() {
     let client = test_client();
     let response = &mut create_article(&client, login(&client));
 
     let slug = article_slug(response);
-    // Slug can contain random prefix, this start_with, instead assert_eq!
+    // Slug can contain random prefix, thus `start_with` instead of `assert_eq`!
     assert!(slug.starts_with(&ARTICLE_TITLE.to_lowercase().replace(' ', "-")));
 
-    let response = &mut client
-        .get(format!("/api/articles/{}", slug))
-        .dispatch();
+    let response = &mut client.get(format!("/api/articles/{}", slug)).dispatch();
 
     let value = response_json_value(response);
     let body = value
@@ -49,7 +47,6 @@ fn test_get_articles() {
 
     assert_eq!(body, Some(ARTICLE_BODY));
 }
-
 
 #[test]
 /// Test article update.
@@ -81,6 +78,172 @@ fn test_put_articles() {
 
     assert_eq!(description, Some(new_desc));
 }
+
+#[test]
+/// Test article deletion.
+fn test_delete_article() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client
+        .delete(format!("/api/articles/{}", slug))
+        .header(token_header(token))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+}
+
+#[test]
+/// Test that it's not possible to delete article anonymously.
+fn test_delete_article_anonymously() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client.delete(format!("/api/articles/{}", slug)).dispatch();
+
+    assert_eq!(response.status(), Status::Forbidden);
+}
+
+#[test]
+/// Test putting article to favorites.
+fn test_favorite_article() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client
+        .post(format!("/api/articles/{}/favorite", slug))
+        .header(token_header(token))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+}
+
+#[test]
+/// Test removing article from favorites .
+fn test_unfavorite_article() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client
+        .delete(format!("/api/articles/{}/favorite", slug))
+        .header(token_header(token))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+}
+
+#[test]
+/// Test getting multiple articles .
+fn test_get_articles() {
+    let client = test_client();
+    let token = login(&client);
+    create_article(&client, token);
+
+    let response = &mut client.get("/api/articles").dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+
+    let value = response_json_value(response);
+    let num = value
+        .get("articlesCount")
+        .and_then(|count| count.as_i64())
+        .expect("must have 'articlesCount' field");
+
+    assert!(num > 0);
+}
+
+#[test]
+/// Test getting articles feed.
+fn test_get_articles_fedd() {
+    let client = test_client();
+    let token = login(&client);
+
+    let response = &mut client
+        .get("/api/articles/feed")
+        .header(token_header(token))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+
+    let value = response_json_value(response);
+    value.get("articles").expect("must have 'articles' field");
+}
+
+#[test]
+/// Test posting and deleteing of comments.
+fn test_commenting() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client
+        .post(format!("/api/articles/{}/comments", slug))
+        .header(ContentType::JSON)
+        .header(token_header(token.clone()))
+        .body(json_string!({
+            "comment": {
+                "body": "Like!",
+            }
+        }))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+
+    let value = response_json_value(response);
+    let comment_id = value
+        .get("comment")
+        .and_then(|comment| comment.get("id"))
+        .and_then(|id| id.as_i64())
+        .expect("must have comment 'id' field");
+
+    let response = client
+        .delete(format!("/api/articles/{}/comments/{}", slug, comment_id))
+        .header(token_header(token))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+}
+
+#[test]
+/// Test getting comments.
+fn test_get_comment() {
+    let client = test_client();
+    let token = login(&client);
+    let response = &mut create_article(&client, token.clone());
+
+    let slug = article_slug(response);
+
+    let response = &mut client
+        .get(format!("/api/articles/{}/comments", slug))
+        .dispatch();
+
+    assert_eq!(response.status(), Status::Ok);
+
+    let value = response_json_value(response);
+    let comments_num = value
+        .get("comments")
+        .and_then(|comments| comments.as_array())
+        .map(|comments| comments.len())
+        .expect("must have 'comments' field");
+    // Newly created article must have no comments
+    assert_eq!(comments_num, 0);
+}
+
+// Utility functions
 
 fn article_slug(response: &mut LocalResponse) -> String {
     response_json_value(response)
