@@ -50,6 +50,5 @@ cargo run --no-default-features
 ```
 
 ### TODO
-1. Use insert into table (...) select
-2. Error handling: either `snafu`, `failure` or `error_chain`
-3. Consider using rockets custom config and reading db url from `.env`
+1. Error handling: either `snafu`, `failure` or `error_chain`
+2. Consider using rockets custom config and reading db url from `.env`
