@@ -5,7 +5,7 @@ version = "0.4.0"
 edition = "2018"
 
 [dependencies]
-rocket = { version = "0.4.1", default-features = false }
+rocket = { version = "0.4.2", default-features = false }
 rocket_cors = { version = "0.4.0", default-features = false }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
