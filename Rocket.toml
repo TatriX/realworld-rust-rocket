@@ -1,2 +1,0 @@
-[global.databases]
-diesel_postgres_pool = { url = "postgres://realworld:realworld@localhost/realworld" }

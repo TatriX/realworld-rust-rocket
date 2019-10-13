@@ -13,6 +13,8 @@ use validator;
 #[macro_use]
 extern crate validator_derive;
 
+use dotenv::dotenv;
+
 mod auth;
 mod config;
 mod db;
@@ -32,7 +34,8 @@ fn not_found() -> JsonValue {
 }
 
 pub fn rocket() -> rocket::Rocket {
-    rocket::ignite()
+    dotenv().ok();
+    rocket::custom(db::config())
         .mount(
             "/api",
             routes![
