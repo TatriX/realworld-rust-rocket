@@ -39,7 +39,7 @@ You can also check postman/newman. See `/tests` directory.
 
 # How it works
 `diesel` cli uses `.env` file.
-Rocket reads database configuration from `Rocket.toml` file.
+Rocket sets database configuration from `.env` file.
 Checkout Rocket's amazing [guide](https://rocket.rs/guide/)
 
 ### Features
@@ -51,4 +51,3 @@ cargo run --no-default-features
 
 ### TODO
 1. Error handling: either `snafu`, `failure` or `error_chain`
-2. Consider using rockets custom config and reading db url from `.env`
