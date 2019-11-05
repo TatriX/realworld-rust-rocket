@@ -54,7 +54,7 @@ pub fn post_articles(
 pub fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, conn: db::Conn) -> JsonValue {
     let user_id = auth.map(|x| x.id);
     let articles = db::articles::find(&conn, &params, user_id);
-    json!({ "articles": articles, "articlesCount": articles.len() })
+    json!({ "articles": articles.0, "articlesCount": articles.1 })
 }
 
 #[get("/articles/<slug>")]

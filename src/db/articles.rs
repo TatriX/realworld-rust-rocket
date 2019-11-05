@@ -1,3 +1,4 @@
+use crate::db::OffsetLimit;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
 use crate::schema::articles;
@@ -77,7 +78,7 @@ pub struct FindArticles {
     offset: Option<i64>,
 }
 
-pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) -> Vec<ArticleJson> {
+pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) -> (Vec<ArticleJson>, i64) {
     let mut query = articles::table
         .inner_join(users::table)
         .left_join(
@@ -110,20 +111,27 @@ pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) ->
                 )));
             }
             Err(err) => match err {
-                diesel::result::Error::NotFound => return vec![],
+                diesel::result::Error::NotFound => return (vec![], 0),
                 _ => panic!("Cannot load favorited user: {}", err),
             },
         }
     }
 
     query
-        .limit(params.limit.unwrap_or(DEFAULT_LIMIT))
-        .offset(params.offset.unwrap_or(0))
-        .load::<(Article, User, bool)>(conn)
+        .offset_and_limit(
+            params.offset.unwrap_or(0),
+            params.limit.unwrap_or(DEFAULT_LIMIT),
+        )
+        .load_and_count::<(Article, User, bool)>(conn)
+        .map(|(res, count)| {
+            (
+                res.into_iter()
+                    .map(|(article, author, favorited)| article.attach(author, favorited))
+                    .collect(),
+                count,
+            )
+        })
         .expect("Cannot load articles")
-        .into_iter()
-        .map(|(article, author, favorited)| article.attach(author, favorited))
-        .collect()
 }
 
 pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option<ArticleJson> {
