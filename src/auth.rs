@@ -1,5 +1,5 @@
-use rocket::request::{self, FromRequest, Request};
 use rocket::http::Status;
+use rocket::request::{self, FromRequest, Request};
 use rocket::Outcome;
 use serde::{Deserialize, Serialize};
 

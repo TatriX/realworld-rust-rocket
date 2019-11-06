@@ -128,7 +128,7 @@ fn test_favorite_article() {
 }
 
 #[test]
-/// Test removing article from favorites .
+/// Test removing article from favorites.
 fn test_unfavorite_article() {
     let client = test_client();
     let token = login(&client);
@@ -183,7 +183,6 @@ fn test_get_articles_with_params() {
         .expect("must have 'articlesCount' field");
 }
 
-
 #[test]
 /// Test getting articles feed.
 fn test_get_articles_fedd() {
@@ -191,10 +190,7 @@ fn test_get_articles_fedd() {
     let token = login(&client);
 
     let url = "/api/articles/feed?limit=1&offset=0";
-    let response = &mut client
-        .get(url)
-        .header(token_header(token))
-        .dispatch();
+    let response = &mut client.get(url).header(token_header(token)).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
