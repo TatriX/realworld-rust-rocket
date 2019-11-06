@@ -37,10 +37,10 @@ pub fn config() -> Config {
 #[database("diesel_postgres_pool")]
 pub struct Conn(diesel::PgConnection);
 
-use diesel::prelude::*;
-use diesel::query_dsl::methods::LoadQuery;
-use diesel::query_builder::*;
 use diesel::pg::Pg;
+use diesel::prelude::*;
+use diesel::query_builder::*;
+use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
 
 pub trait OffsetLimit: Sized {
@@ -64,16 +64,33 @@ pub struct OffsetLimited<T> {
     limit: i64,
 }
 
-impl<T> OffsetLimited<T> {
+/// Helper struct to represent paginated query results.
+pub struct Page<T> {
+    pub items: Vec<T>,
+    pub total_count: i64,
+}
 
-    pub fn load_and_count<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
+impl<T> Page<T> {
+    pub fn empty() -> Self {
+        Page {
+            items: vec![],
+            total_count: 0,
+        }
+    }
+}
+
+impl<T> OffsetLimited<T> {
+    pub fn load_and_count<U>(self, conn: &PgConnection) -> QueryResult<Page<U>>
     where
         Self: LoadQuery<PgConnection, (U, i64)>,
     {
         let results = self.load::<(U, i64)>(conn)?;
-        let total = results.get(0).map(|x| x.1).unwrap_or(0);
-        let records = results.into_iter().map(|x| x.0).collect();
-        Ok((records, total))
+        Ok({
+            Page {
+                total_count: results.get(0).map(|x| x.1).unwrap_or(0),
+                items: results.into_iter().map(|x| x.0).collect(),
+            }
+        })
     }
 }
 
