@@ -66,7 +66,7 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
 /// Decode token into `Auth` struct. If any error is encountered, log it
 /// an return None.
 fn decode_token(token: &str) -> Option<Auth> {
-    jwt::decode(token, &config::SECRET.to_string(), jwt::Algorithm::HS256)
+    jwt::decode(token, &config::SECRET.to_string(), jwt::Algorithm::HS256, &jwt::ValidationOptions::default())
         .map(|(_, payload)| {
             serde_json::from_value::<Auth>(payload)
                 .map_err(|err| {
