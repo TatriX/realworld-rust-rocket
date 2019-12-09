@@ -1,7 +1,8 @@
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
-use rocket::Outcome;
+use rocket::{Outcome, State};
 use serde::{Deserialize, Serialize};
+use crate::config::AppState;
 
 use jsonwebtoken as jwt;
 
@@ -17,8 +18,8 @@ pub struct Auth {
 }
 
 impl Auth {
-    pub fn token(&self) -> String {
-        jwt::encode(&jwt::Header::default(), self, config::SECRET.as_bytes()).expect("jwt")
+    pub fn token(&self, secret: &[u8]) -> String {
+        jwt::encode(&jwt::Header::default(), self, secret).expect("jwt")
     }
 }
 
@@ -30,7 +31,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     /// Handlers with Auth guard will fail with 503 error.
     /// Handlers with Option<Auth> will be called with None.
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, Self::Error> {
-        if let Some(auth) = extract_auth_from_request(request) {
+        let state: State<AppState> = request.guard()?;
+        if let Some(auth) = extract_auth_from_request(request, &state.secret) {
             Outcome::Success(auth)
         } else {
             Outcome::Failure((Status::Forbidden, ()))
@@ -38,12 +40,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     }
 }
 
-fn extract_auth_from_request(request: &Request) -> Option<Auth> {
+fn extract_auth_from_request(request: &Request, secret: &[u8]) -> Option<Auth> {
     request
         .headers()
         .get_one("authorization")
         .and_then(extract_token_from_header)
-        .and_then(decode_token)
+        .and_then(|token| decode_token(token, secret))
 }
 
 fn extract_token_from_header(header: &str) -> Option<&str> {
@@ -56,17 +58,13 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
 
 /// Decode token into `Auth` struct. If any error is encountered, log it
 /// an return None.
-fn decode_token(token: &str) -> Option<Auth> {
+fn decode_token(token: &str, secret: &[u8]) -> Option<Auth> {
     use jwt::{Algorithm, Validation};
 
-    jwt::decode(
-        token,
-        &config::SECRET.as_bytes(),
-        &Validation::new(Algorithm::HS256),
-    )
-    .map_err(|err| {
-        eprintln!("Auth decode error: {:?}", err);
-    })
-    .ok()
-    .map(|token_data| token_data.claims)
+    jwt::decode(token, secret, &Validation::new(Algorithm::HS256))
+        .map_err(|err| {
+            eprintln!("Auth decode error: {:?}", err);
+        })
+        .ok()
+        .map(|token_data| token_data.claims)
 }

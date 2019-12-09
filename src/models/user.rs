@@ -33,14 +33,14 @@ pub struct Profile {
 }
 
 impl User {
-    pub fn to_user_auth(&self) -> UserAuth {
+    pub fn to_user_auth(&self, secret: &[u8]) -> UserAuth {
         let exp = Utc::now() + Duration::days(60); // TODO: move to config
         let token = Auth {
             id: self.id,
             username: self.username.clone(),
             exp: exp.timestamp(),
         }
-        .token();
+        .token(secret);
 
         UserAuth {
             username: &self.username,
