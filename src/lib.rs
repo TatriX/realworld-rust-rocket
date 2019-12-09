@@ -9,7 +9,6 @@ use rocket_cors;
 #[macro_use]
 extern crate diesel;
 
-use validator;
 #[macro_use]
 extern crate validator_derive;
 
@@ -24,6 +23,7 @@ mod routes;
 mod schema;
 
 use rocket_contrib::json::JsonValue;
+use rocket_cors::Cors;
 
 #[catch(404)]
 fn not_found() -> JsonValue {
@@ -31,6 +31,10 @@ fn not_found() -> JsonValue {
         "status": "error",
         "reason": "Resource was not found."
     })
+}
+
+fn cors_fairing() -> Cors {
+    Cors::from_options(&Default::default()).expect("Cors fairing cannot be created")
 }
 
 pub fn rocket() -> rocket::Rocket {
@@ -61,6 +65,6 @@ pub fn rocket() -> rocket::Rocket {
             ],
         )
         .attach(db::Conn::fairing())
-        .attach(rocket_cors::Cors::default())
+        .attach(cors_fairing())
         .register(catchers![not_found])
 }
