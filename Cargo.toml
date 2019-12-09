@@ -17,7 +17,7 @@ validator_derive = "0.10.0"
 slug = "0.1.4"
 rand = "0.7.2"
 dotenv = "0.15.0"
-frank_jwt = "3.1.1"
+jsonwebtoken = "6.0.1"
 
 [dependencies.rocket_contrib]
 version = "0.4.2"
