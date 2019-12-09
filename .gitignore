@@ -1,28 +1,5 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/bower_components
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-*.launch
-.settings/
-
-
 #System Files
 .DS_Store
 Thumbs.db
 
 /target/
-**/*.rs.bk
-Cargo.lock
-
-/target/
-**/*.rs.bk
-Cargo.lock
-
-/target/
-**/*.rs.bk
