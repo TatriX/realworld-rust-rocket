@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] - 2019-12-09
 ### Added
 - Changelog!
+- Add Cargo.lock
 
 ### Changed
 - `frank_jwt` replaced with `jsonwebtoken` (see #21).
