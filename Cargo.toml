@@ -3,6 +3,18 @@ authors = ["TatriX <tatrics@gmail.com>"]
 name = "realworld"
 version = "0.5.0"
 edition = "2018"
+license = "Unlicense OR MIT"
+homepage = "https://github.com/TatriX/realworld-rust-rocket"
+repository = "https://github.com/TatriX/realworld-rust-rocket"
+description = """
+Rust / Rocket codebase containing real world examples (CRUD, auth, advanced patterns, etc)
+that adheres to the RealWorld spec and API.
+"""
+keywords = ["demo", "web", "realworld", "rocket"]
+categories = ["web-programming", "demo"]
+
+[badges]
+travis-ci = { repository = "TatriX/realworld-rust-rocket" }
 
 [dependencies]
 rocket = { version = "0.4.2", default-features = false }
