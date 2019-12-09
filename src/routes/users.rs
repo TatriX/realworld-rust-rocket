@@ -13,11 +13,11 @@ pub struct NewUser {
 
 #[derive(Deserialize, Validate)]
 struct NewUserData {
-    #[validate(length(min = "1"))]
+    #[validate(length(min = 1))]
     username: Option<String>,
     #[validate(email)]
     email: Option<String>,
-    #[validate(length(min = "8"))]
+    #[validate(length(min = 8))]
     password: Option<String>,
 }
 

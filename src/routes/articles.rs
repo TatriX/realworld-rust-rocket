@@ -14,11 +14,11 @@ pub struct NewArticle {
 
 #[derive(Deserialize, Validate)]
 pub struct NewArticleData {
-    #[validate(length(min = "1"))]
+    #[validate(length(min = 1))]
     title: Option<String>,
-    #[validate(length(min = "1"))]
+    #[validate(length(min = 1))]
     description: Option<String>,
-    #[validate(length(min = "1"))]
+    #[validate(length(min = 1))]
     body: Option<String>,
     #[serde(rename = "tagList")]
     tag_list: Vec<String>,
@@ -102,7 +102,7 @@ pub struct NewComment {
 
 #[derive(Deserialize, Validate)]
 pub struct NewCommentData {
-    #[validate(length(min = "1"))]
+    #[validate(length(min = 1))]
     body: Option<String>,
 }
 
