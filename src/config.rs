@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::env;
 
 /// Debug only secret for JWT encoding & decoding.
-#[cfg(debug_assertions)]
 const SECRET: &'static str = "8Xui8SN4mI+7egV/9dlfYYLGQJeEx4+DwmSQLwDVXJg=";
 
 /// js toISOString() in test suit can't handle chrono's default precision
