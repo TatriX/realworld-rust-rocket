@@ -31,10 +31,23 @@ rustup install nightly
 
 # start postgresql and seed the database
 psql -f init.sql
-cargo install diesel_cli --no-default-features --features "postgres"
-diesel migration run
+# or with database connecting infomation:
+# psql \
+#   -U <database username has permission to create databases and database users> \
+#   -h <database host address> \
+#   -p <database port> \
+#   -f init.sql
+psql -U postgres -h localhost -p 5432 -f init.sql
 
-cargo run
+cargo install diesel_cli --no-default-features --features "postgres"
+
+diesel migration run
+# or with database connecting url(these information are defined in init.sql):
+# diesel migration run --database-url postgresql://<username>:<password>@<host>:<port>/<db name>
+diesel migration run --database-url postgresql://realworld:realworld@localhost:5432/realworld
+
+# run build and server with same database url:
+DATABASE_URL=postgresql://realworld:realworld@localhost:5432/realworld cargo run
 ```
 
 ### Testing
