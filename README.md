@@ -31,22 +31,50 @@ rustup install nightly
 
 # start postgresql and seed the database
 psql -f init.sql
-# or with database connecting infomation:
-# psql \
-#   -U <database username has permission to create databases and database users> \
-#   -h <database host address> \
-#   -p <database port> \
-#   -f init.sql
+# or with database connecting infomation like this:
 psql -U postgres -h localhost -p 5432 -f init.sql
 
 cargo install diesel_cli --no-default-features --features "postgres"
 
 diesel migration run
-# or with database connecting url(these information are defined in init.sql):
-# diesel migration run --database-url postgresql://<username>:<password>@<host>:<port>/<db name>
+# or with database connecting url(these information are defined in init.sql) like this:
 diesel migration run --database-url postgresql://realworld:realworld@localhost:5432/realworld
 
 # run build and server with same database url:
+DATABASE_URL=postgresql://realworld:realworld@localhost:5432/realworld cargo run
+```
+
+### Troubleshooting
+
+#### Got error while running `psql -f init.sql`: `psql: error: could not connect to server: could not connect to server: No such file or directory`, `psql: error: could not connect to server: FATAL:  password authentication failed for user "yourusername"`
+You need to provide database connecting information with format like this:
+```bash
+psql \
+  -U <database username has permission to create databases and database users> \
+  -h <database host address> \
+  -p <database port> \
+  -f init.sql
+```
+For example:
+```bash
+psql -U postgres -h localhost -p 5432 -f init.sql
+```
+
+#### Got error while running `diesel migration run`: `The --database-url argument must be passed, or the DATABASE_URL environment variable must be set.`
+
+Use DATABASE_URL environment variable with format:
+```bash
+diesel migration run --database-url postgresql://<username>:<password>@<host>:<port>/<db name>
+```
+Use information which defined in init.sql, for example:
+```bash
+diesel migration run --database-url postgresql://realworld:realworld@localhost:5432/realworld
+```
+
+#### Got error while run `cargo run`: `thread 'main' panicked at 'No DATABASE_URL environment variable found: NotPresent', src/config.rs:50:9`
+
+Use `DATABASE_URL` environment variable with database connecting url like this:
+```bash
 DATABASE_URL=postgresql://realworld:realworld@localhost:5432/realworld cargo run
 ```
 
