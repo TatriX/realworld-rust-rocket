@@ -1,6 +1,5 @@
 use crate::models::user::User;
 use crate::schema::users;
-// use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
@@ -45,7 +44,7 @@ pub fn create(
     let salt = SaltString::generate(&mut OsRng);
     let hash = Scrypt
         .hash_password(password.as_bytes(), &salt)
-        .unwrap()
+        .expect("hash error")
         .to_string()
         .to_owned();
 
@@ -71,6 +70,7 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
     let parsed_hash = PasswordHash::new(&user.hash).unwrap();
     let password_matches = Scrypt
         .verify_password(password.as_bytes(), &parsed_hash)
+        .map_err(|err| eprintln!("login_user: scrypt_check: {}", err))
         .is_ok();
 
     if password_matches {
