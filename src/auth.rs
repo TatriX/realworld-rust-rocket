@@ -1,8 +1,9 @@
+use crate::config::AppState;
+use jwt::{DecodingKey, EncodingKey};
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
 use rocket::{Outcome, State};
 use serde::{Deserialize, Serialize};
-use crate::config::AppState;
 
 use jsonwebtoken as jwt;
 
@@ -19,7 +20,8 @@ pub struct Auth {
 
 impl Auth {
     pub fn token(&self, secret: &[u8]) -> String {
-        jwt::encode(&jwt::Header::default(), self, secret).expect("jwt")
+        let encoding_key = EncodingKey::from_base64_secret(std::str::from_utf8(secret).unwrap());
+        jwt::encode(&jwt::Header::default(), self, &encoding_key.unwrap()).expect("jwt")
     }
 }
 
@@ -61,10 +63,16 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
 fn decode_token(token: &str, secret: &[u8]) -> Option<Auth> {
     use jwt::{Algorithm, Validation};
 
-    jwt::decode(token, secret, &Validation::new(Algorithm::HS256))
-        .map_err(|err| {
-            eprintln!("Auth decode error: {:?}", err);
-        })
-        .ok()
-        .map(|token_data| token_data.claims)
+    let decoding_key = DecodingKey::from_base64_secret(std::str::from_utf8(secret).unwrap());
+
+    jwt::decode(
+        token,
+        &decoding_key.unwrap(),
+        &Validation::new(Algorithm::HS256),
+    )
+    .map_err(|err| {
+        eprintln!("Auth decode error: {:?}", err);
+    })
+    .ok()
+    .map(|token_data| token_data.claims)
 }

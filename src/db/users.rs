@@ -1,9 +1,13 @@
 use crate::models::user::User;
 use crate::schema::users;
-use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
+// use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
+use scrypt::{
+    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    Scrypt,
+};
 use serde::Deserialize;
 
 #[derive(Insertable)]
@@ -38,13 +42,17 @@ pub fn create(
     email: &str,
     password: &str,
 ) -> Result<User, UserCreationError> {
-    // see https://blog.filippo.io/the-scrypt-parameters
-    let hash = &scrypt_simple(password, &ScryptParams::new(14, 8, 1)).expect("hash error");
+    let salt = SaltString::generate(&mut OsRng);
+    let hash = Scrypt
+        .hash_password(password.as_bytes(), &salt)
+        .unwrap()
+        .to_string()
+        .to_owned();
 
     let new_user = &NewUser {
         username,
         email,
-        hash,
+        hash: &hash[..],
     };
 
     diesel::insert_into(users::table)
@@ -60,9 +68,10 @@ pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
         .map_err(|err| eprintln!("login_user: {}", err))
         .ok()?;
 
-    let password_matches = scrypt_check(password, &user.hash)
-        .map_err(|err| eprintln!("login_user: scrypt_check: {}", err))
-        .ok()?;
+    let parsed_hash = PasswordHash::new(&user.hash).unwrap();
+    let password_matches = Scrypt
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok();
 
     if password_matches {
         Some(user)
