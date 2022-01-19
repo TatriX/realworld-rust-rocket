@@ -65,7 +65,10 @@ fn slugify(title: &str) -> String {
 
 fn generate_suffix(len: usize) -> String {
     let mut rng = thread_rng();
-    (0..len).map(|_| rng.sample(Alphanumeric)).collect()
+    (0..len)
+        .map(|_| rng.sample(Alphanumeric))
+        .map(char::from)
+        .collect()
 }
 
 #[derive(FromForm, Default)]
@@ -78,7 +81,11 @@ pub struct FindArticles {
     offset: Option<i64>,
 }
 
-pub fn find(conn: &PgConnection, params: &FindArticles, user_id: Option<i32>) -> (Vec<ArticleJson>, i64) {
+pub fn find(
+    conn: &PgConnection,
+    params: &FindArticles,
+    user_id: Option<i32>,
+) -> (Vec<ArticleJson>, i64) {
     let mut query = articles::table
         .inner_join(users::table)
         .left_join(
