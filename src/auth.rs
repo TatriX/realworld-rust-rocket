@@ -1,8 +1,8 @@
 use crate::config::AppState;
 use jwt::{DecodingKey, EncodingKey};
 use rocket::http::Status;
+use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest, Request};
-use rocket::{Outcome, State};
 use serde::{Deserialize, Serialize};
 
 use jsonwebtoken as jwt;
@@ -25,15 +25,15 @@ impl Auth {
     }
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for Auth {
+impl<'a> FromRequest<'a> for Auth {
     type Error = ();
 
     /// Extract Auth token from the "Authorization" header.
     ///
     /// Handlers with Auth guard will fail with 503 error.
     /// Handlers with Option<Auth> will be called with None.
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, Self::Error> {
-        let state: State<AppState> = request.guard()?;
+    fn from_request(request: &'a Request<'a>) -> request::Outcome<Auth, Self::Error> {
+        let state = request.rocket().state::<AppState>().unwrap();
         if let Some(auth) = extract_auth_from_request(request, &state.secret) {
             Outcome::Success(auth)
         } else {
