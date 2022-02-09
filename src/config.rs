@@ -30,8 +30,7 @@ impl AppState {
 
             rocket.manage(AppState {
                 secret: secret.into_bytes(),
-            });
-            rocket
+            })
         })
     }
 }

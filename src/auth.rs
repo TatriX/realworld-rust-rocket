@@ -25,16 +25,17 @@ impl Auth {
     }
 }
 
-impl<'a> FromRequest<'a> for Auth {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for Auth {
     type Error = ();
 
     /// Extract Auth token from the "Authorization" header.
     ///
     /// Handlers with Auth guard will fail with 503 error.
     /// Handlers with Option<Auth> will be called with None.
-    fn from_request(request: &'a Request<'a>) -> request::Outcome<Auth, Self::Error> {
-        let state = request.rocket().state::<AppState>().unwrap();
-        if let Some(auth) = extract_auth_from_request(request, &state.secret) {
+    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Auth, Self::Error> {
+        let state = req.rocket().state::<AppState>().unwrap();
+        if let Some(auth) = extract_auth_from_request(req, &state.secret) {
             Outcome::Success(auth)
         } else {
             Outcome::Failure((Status::Forbidden, ()))
