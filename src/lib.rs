@@ -37,7 +37,8 @@ fn cors_fairing() -> Cors {
     Cors::from_options(&Default::default()).expect("Cors fairing cannot be created")
 }
 
-pub fn rocket() -> rocket::Rocket {
+#[launch]
+pub fn rocket() -> _ {
     dotenv().ok();
     rocket::custom(config::from_env())
         .mount(
