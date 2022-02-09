@@ -23,8 +23,8 @@ impl Errors {
     }
 }
 
-impl<'r> Responder<'r> for Errors {
-    fn respond_to(self, req: &Request) -> response::Result<'r> {
+impl<'r> Responder<'r, 'static> for Errors {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
         use validator::ValidationErrorsKind::Field;
 
         let mut errors = json!({});

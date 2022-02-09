@@ -1,9 +1,11 @@
+use rocket_sync_db_pools::database;
+
 pub mod articles;
 pub mod comments;
 pub mod profiles;
 pub mod users;
 
-#[database("postgres")]
+#[database("diesel_postgres_pool")]
 pub struct Conn(diesel::PgConnection);
 
 use diesel::pg::Pg;
