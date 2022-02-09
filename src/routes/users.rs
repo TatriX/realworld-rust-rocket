@@ -3,8 +3,8 @@ use crate::config::AppState;
 use crate::db::{self, users::UserCreationError};
 use crate::errors::{Errors, FieldValidator};
 
+use rocket::serde::json::{json, Json, Value};
 use rocket::State;
-use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -28,7 +28,7 @@ pub fn post_users(
     new_user: Json<NewUser>,
     conn: db::Conn,
     state: State<AppState>,
-) -> Result<JsonValue, Errors> {
+) -> Result<Value, Errors> {
     let new_user = new_user.into_inner().user;
 
     let mut extractor = FieldValidator::validate(&new_user);
@@ -65,7 +65,7 @@ pub fn post_users_login(
     user: Json<LoginUser>,
     conn: db::Conn,
     state: State<AppState>,
-) -> Result<JsonValue, Errors> {
+) -> Result<Value, Errors> {
     let user = user.into_inner().user;
 
     let mut extractor = FieldValidator::default();
@@ -79,7 +79,7 @@ pub fn post_users_login(
 }
 
 #[get("/user")]
-pub fn get_user(auth: Auth, conn: db::Conn, state: State<AppState>) -> Option<JsonValue> {
+pub fn get_user(auth: Auth, conn: db::Conn, state: State<AppState>) -> Option<Value> {
     db::users::find(&conn, auth.id).map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
 }
 
@@ -94,7 +94,7 @@ pub fn put_user(
     auth: Auth,
     conn: db::Conn,
     state: State<AppState>,
-) -> Option<JsonValue> {
+) -> Option<Value> {
     db::users::update(&conn, auth.id, &user.user)
         .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
 }

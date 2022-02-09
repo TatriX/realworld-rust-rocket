@@ -2,8 +2,8 @@ use crate::auth::Auth;
 use crate::db;
 use crate::db::articles::{FeedArticles, FindArticles};
 use crate::errors::{Errors, FieldValidator};
-use rocket::request::Form;
-use rocket_contrib::json::{Json, JsonValue};
+use rocket::form::Form;
+use rocket::serde::json::{json, Json, Value};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -29,7 +29,7 @@ pub fn post_articles(
     auth: Auth,
     new_article: Json<NewArticle>,
     conn: db::Conn,
-) -> Result<JsonValue, Errors> {
+) -> Result<Value, Errors> {
     let new_article = new_article.into_inner().article;
 
     let mut extractor = FieldValidator::validate(&new_article);
@@ -51,14 +51,14 @@ pub fn post_articles(
 
 /// return multiple articles, ordered by most recent first
 #[get("/articles?<params..>")]
-pub fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, conn: db::Conn) -> JsonValue {
+pub fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, conn: db::Conn) -> Value {
     let user_id = auth.map(|x| x.id);
     let articles = db::articles::find(&conn, &params, user_id);
     json!({ "articles": articles.0, "articlesCount": articles.1 })
 }
 
 #[get("/articles/<slug>")]
-pub fn get_article(slug: String, auth: Option<Auth>, conn: db::Conn) -> Option<JsonValue> {
+pub fn get_article(slug: String, auth: Option<Auth>, conn: db::Conn) -> Option<Value> {
     let user_id = auth.map(|x| x.id);
     db::articles::find_one(&conn, &slug, user_id).map(|article| json!({ "article": article }))
 }
@@ -69,12 +69,12 @@ pub fn delete_article(slug: String, auth: Auth, conn: db::Conn) {
 }
 
 #[post("/articles/<slug>/favorite")]
-pub fn favorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<JsonValue> {
+pub fn favorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Value> {
     db::articles::favorite(&conn, &slug, auth.id).map(|article| json!({ "article": article }))
 }
 
 #[delete("/articles/<slug>/favorite")]
-pub fn unfavorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<JsonValue> {
+pub fn unfavorite_article(slug: String, auth: Auth, conn: db::Conn) -> Option<Value> {
     db::articles::unfavorite(&conn, &slug, auth.id).map(|article| json!({ "article": article }))
 }
 
@@ -89,7 +89,7 @@ pub fn put_articles(
     article: Json<UpdateArticle>,
     auth: Auth,
     conn: db::Conn,
-) -> Option<JsonValue> {
+) -> Option<Value> {
     // TODO: check auth
     db::articles::update(&conn, &slug, auth.id, article.into_inner().article)
         .map(|article| json!({ "article": article }))
@@ -112,7 +112,7 @@ pub fn post_comment(
     new_comment: Json<NewComment>,
     auth: Auth,
     conn: db::Conn,
-) -> Result<JsonValue, Errors> {
+) -> Result<Value, Errors> {
     let new_comment = new_comment.into_inner().comment;
 
     let mut extractor = FieldValidator::validate(&new_comment);
@@ -129,13 +129,13 @@ pub fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
 }
 
 #[get("/articles/<slug>/comments")]
-pub fn get_comments(slug: String, conn: db::Conn) -> JsonValue {
+pub fn get_comments(slug: String, conn: db::Conn) -> Value {
     let comments = db::comments::find_by_slug(&conn, &slug);
     json!({ "comments": comments })
 }
 
 #[get("/articles/feed?<params..>")]
-pub fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, conn: db::Conn) -> JsonValue {
+pub fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, conn: db::Conn) -> Value {
     let articles = db::articles::feed(&conn, &params, auth.id);
     let articles_count = articles.len();
     json!({ "articles": articles, "articlesCount": articles_count })

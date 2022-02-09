@@ -1,17 +1,15 @@
-use rocket_contrib::databases::diesel;
-
 pub mod articles;
 pub mod comments;
 pub mod profiles;
 pub mod users;
 
-#[database("diesel_postgres_pool")]
+#[database("postgres")]
 pub struct Conn(diesel::PgConnection);
 
-use diesel::prelude::*;
-use diesel::query_dsl::methods::LoadQuery;
-use diesel::query_builder::*;
 use diesel::pg::Pg;
+use diesel::prelude::*;
+use diesel::query_builder::*;
+use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
 
 pub trait OffsetLimit: Sized {
@@ -36,7 +34,6 @@ pub struct OffsetLimited<T> {
 }
 
 impl<T> OffsetLimited<T> {
-
     pub fn load_and_count<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
     where
         Self: LoadQuery<PgConnection, (U, i64)>,

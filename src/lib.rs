@@ -2,8 +2,7 @@
 
 #[macro_use]
 extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
+use rocket::serde::json::json;
 use rocket_cors;
 
 #[macro_use]
@@ -22,11 +21,11 @@ mod models;
 mod routes;
 mod schema;
 
-use rocket_contrib::json::JsonValue;
+use rocket::serde::json::Value;
 use rocket_cors::Cors;
 
 #[catch(404)]
-fn not_found() -> JsonValue {
+fn not_found() -> Value {
     json!({
         "status": "error",
         "reason": "Resource was not found."
