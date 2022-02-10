@@ -41,7 +41,7 @@ pub async fn post_articles(
     let article = db
         .run(move |conn| {
             db::articles::create(
-                &conn,
+                conn,
                 auth.id,
                 &title,
                 &description,
@@ -58,7 +58,7 @@ pub async fn post_articles(
 pub async fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, db: Db) -> Value {
     let user_id = auth.map(|x| x.id);
     let articles = db
-        .run(move |conn| db::articles::find(&conn, &params, user_id))
+        .run(move |conn| db::articles::find(conn, &params, user_id))
         .await;
     json!({ "articles": articles.0, "articlesCount": articles.1 })
 }
@@ -66,34 +66,31 @@ pub async fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, db: Db
 #[get("/articles/<slug>")]
 pub async fn get_article(slug: String, auth: Option<Auth>, db: Db) -> Option<Value> {
     let user_id = auth.map(|x| x.id);
-    let articles = db
-        .run(move |conn| db::articles::find_one(&conn, &slug, user_id))
-        .await;
-    articles.map(|article| json!({ "article": article }))
+    db.run(move |conn| db::articles::find_one(conn, &slug, user_id))
+        .await
+        .map(|article| json!({ "article": article }))
 }
 
 #[delete("/articles/<slug>")]
 pub async fn delete_article(slug: String, auth: Auth, db: Db) {
     db.run(move |conn| {
-        db::articles::delete(&conn, &slug, auth.id);
+        db::articles::delete(conn, &slug, auth.id);
     })
     .await;
 }
 
 #[post("/articles/<slug>/favorite")]
 pub async fn favorite_article(slug: String, auth: Auth, db: Db) -> Option<Value> {
-    let articles = db
-        .run(move |conn| db::articles::favorite(&conn, &slug, auth.id))
-        .await;
-    articles.map(|article| json!({ "article": article }))
+    db.run(move |conn| db::articles::favorite(conn, &slug, auth.id))
+        .await
+        .map(|article| json!({ "article": article }))
 }
 
 #[delete("/articles/<slug>/favorite")]
 pub async fn unfavorite_article(slug: String, auth: Auth, db: Db) -> Option<Value> {
-    let articles = db
-        .run(move |conn| db::articles::unfavorite(&conn, &slug, auth.id))
-        .await;
-    articles.map(|article| json!({ "article": article }))
+    db.run(move |conn| db::articles::unfavorite(conn, &slug, auth.id))
+        .await
+        .map(|article| json!({ "article": article }))
 }
 
 #[derive(Deserialize)]
@@ -109,10 +106,9 @@ pub async fn put_articles(
     db: Db,
 ) -> Option<Value> {
     // TODO: check auth
-    let articles = db
-        .run(move |conn| db::articles::update(&conn, &slug, auth.id, article.into_inner().article))
-        .await;
-    articles.map(|article| json!({ "article": article }))
+    db.run(move |conn| db::articles::update(conn, &slug, auth.id, article.into_inner().article))
+        .await
+        .map(|article| json!({ "article": article }))
 }
 
 #[derive(Deserialize)]
@@ -140,21 +136,21 @@ pub async fn post_comment(
     extractor.check()?;
 
     let comment = db
-        .run(move |conn| db::comments::create(&conn, auth.id, &slug, &body))
+        .run(move |conn| db::comments::create(conn, auth.id, &slug, &body))
         .await;
     Ok(json!({ "comment": comment }))
 }
 
 #[delete("/articles/<slug>/comments/<id>")]
 pub async fn delete_comment(slug: String, id: i32, auth: Auth, db: Db) {
-    db.run(move |conn| db::comments::delete(&conn, auth.id, &slug, id))
+    db.run(move |conn| db::comments::delete(conn, auth.id, &slug, id))
         .await
 }
 
 #[get("/articles/<slug>/comments")]
 pub async fn get_comments(slug: String, db: Db) -> Value {
     let comments = db
-        .run(move |conn| db::comments::find_by_slug(&conn, &slug))
+        .run(move |conn| db::comments::find_by_slug(conn, &slug))
         .await;
     json!({ "comments": comments })
 }
@@ -162,7 +158,7 @@ pub async fn get_comments(slug: String, db: Db) -> Value {
 #[get("/articles/feed?<params..>")]
 pub async fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, db: Db) -> Value {
     let articles = db
-        .run(move |conn| db::articles::feed(&conn, &params, auth.id))
+        .run(move |conn| db::articles::feed(conn, &params, auth.id))
         .await;
     let articles_count = articles.len();
     json!({ "articles": articles, "articlesCount": articles_count })
