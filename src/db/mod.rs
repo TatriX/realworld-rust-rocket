@@ -1,5 +1,3 @@
-use rocket_sync_db_pools::database;
-
 pub mod articles;
 pub mod comments;
 pub mod profiles;
