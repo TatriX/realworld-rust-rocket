@@ -26,7 +26,7 @@ mod routes;
 mod schema;
 
 use rocket::serde::json::Value;
-use rocket_cors::Cors;
+use rocket_cors::{Cors, CorsOptions};
 
 #[catch(404)]
 fn not_found() -> Value {
@@ -37,7 +37,9 @@ fn not_found() -> Value {
 }
 
 fn cors_fairing() -> Cors {
-    Cors::from_options(&Default::default()).expect("Cors fairing cannot be created")
+    CorsOptions::default()
+        .to_cors()
+        .expect("Cors fairing cannot be created")
 }
 
 #[launch]
@@ -71,5 +73,5 @@ pub fn rocket() -> _ {
         .attach(database::Db::fairing())
         .attach(cors_fairing())
         .attach(config::AppState::manage())
-        .register(catchers![not_found])
+        .register("/", catchers![not_found])
 }

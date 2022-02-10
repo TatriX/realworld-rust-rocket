@@ -17,7 +17,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn manage() -> AdHoc {
+    pub fn manage() -> AdHoc {
         AdHoc::on_ignite("Manage config", |rocket| async move {
             // Rocket doesn't expose it's own secret_key, so we use our own here.
             let secret = env::var("SECRET_KEY").unwrap_or_else(|err| {
