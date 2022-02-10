@@ -22,7 +22,7 @@ travis-ci = { repository = "TatriX/realworld-rust-rocket" }
 
 [dependencies]
 rocket = { version = "0.5.0-rc.1", default-features = false, features = ["json"] }
-rocket_cors = { version = "0.5.2", default-features = false }
+rocket_cors = { version = "0.6.0-alpha1", default-features = false }
 serde = { version = "1.0.133", features = ["derive"] }
 serde_json = "1.0.75"
 scrypt = { version = "0.8.1", default-features = true }
