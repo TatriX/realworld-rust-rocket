@@ -1,4 +1,4 @@
-use crate::db::OffsetLimit;
+use crate::database::OffsetLimit;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
 use crate::schema::articles;

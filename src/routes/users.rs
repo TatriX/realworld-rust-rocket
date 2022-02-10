@@ -1,6 +1,6 @@
 use crate::auth::Auth;
 use crate::config::AppState;
-use crate::db::{self, users::UserCreationError};
+use crate::database::{self, users::UserCreationError};
 use crate::errors::{Errors, FieldValidator};
 
 use rocket::serde::json::{json, Json, Value};
@@ -26,7 +26,7 @@ struct NewUserData {
 #[post("/users", format = "json", data = "<new_user>")]
 pub fn post_users(
     new_user: Json<NewUser>,
-    conn: db::Conn,
+    conn: database::Conn,
     state: State<AppState>,
 ) -> Result<Value, Errors> {
     let new_user = new_user.into_inner().user;
@@ -38,7 +38,7 @@ pub fn post_users(
 
     extractor.check()?;
 
-    db::users::create(&conn, &username, &email, &password)
+    database::users::create(&conn, &username, &email, &password)
         .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
         .map_err(|error| {
             let field = match error {
@@ -63,7 +63,7 @@ struct LoginUserData {
 #[post("/users/login", format = "json", data = "<user>")]
 pub fn post_users_login(
     user: Json<LoginUser>,
-    conn: db::Conn,
+    conn: database::Conn,
     state: State<AppState>,
 ) -> Result<Value, Errors> {
     let user = user.into_inner().user;
@@ -73,28 +73,29 @@ pub fn post_users_login(
     let password = extractor.extract("password", user.password);
     extractor.check()?;
 
-    db::users::login(&conn, &email, &password)
+    database::users::login(&conn, &email, &password)
         .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
         .ok_or_else(|| Errors::new(&[("email or password", "is invalid")]))
 }
 
 #[get("/user")]
-pub fn get_user(auth: Auth, conn: db::Conn, state: State<AppState>) -> Option<Value> {
-    db::users::find(&conn, auth.id).map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
+pub fn get_user(auth: Auth, conn: database::Conn, state: State<AppState>) -> Option<Value> {
+    database::users::find(&conn, auth.id)
+        .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
 }
 
 #[derive(Deserialize)]
 pub struct UpdateUser {
-    user: db::users::UpdateUserData,
+    user: database::users::UpdateUserData,
 }
 
 #[put("/user", format = "json", data = "<user>")]
 pub fn put_user(
     user: Json<UpdateUser>,
     auth: Auth,
-    conn: db::Conn,
+    conn: database::Conn,
     state: State<AppState>,
 ) -> Option<Value> {
-    db::users::update(&conn, auth.id, &user.user)
+    database::users::update(&conn, auth.id, &user.user)
         .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
 }

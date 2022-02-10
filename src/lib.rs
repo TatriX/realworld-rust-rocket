@@ -19,7 +19,7 @@ use dotenv::dotenv;
 
 mod auth;
 mod config;
-mod db;
+mod database;
 mod errors;
 mod models;
 mod routes;
@@ -68,7 +68,7 @@ pub fn rocket() -> _ {
                 routes::profiles::unfollow,
             ],
         )
-        .attach(db::Db::fairing())
+        .attach(database::Db::fairing())
         .attach(cors_fairing())
         .attach(config::AppState::manage())
         .register(catchers![not_found])
