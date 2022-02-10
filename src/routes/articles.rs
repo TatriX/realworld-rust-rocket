@@ -2,10 +2,8 @@ use crate::auth::Auth;
 use crate::database::articles::{FeedArticles, FindArticles};
 use crate::database::{self, Db};
 use crate::errors::{Errors, FieldValidator};
-use rocket::form::Form;
 use rocket::serde::json::{json, Json, Value};
 use serde::Deserialize;
-use validator::Validate;
 
 #[derive(Deserialize)]
 pub struct NewArticle {
@@ -54,8 +52,23 @@ pub async fn post_articles(
 }
 
 /// return multiple articles, ordered by most recent first
-#[get("/articles?<params..>")]
-pub async fn get_articles(params: Form<FindArticles>, auth: Option<Auth>, db: Db) -> Value {
+#[get("/articles?<tag>&<author>&<favorited>&<limit>&<offset>")]
+pub async fn get_articles(
+    tag: Option<String>,
+    author: Option<String>,
+    favorited: Option<String>,
+    limit: Option<i64>,
+    offset: Option<i64>,
+    auth: Option<Auth>,
+    db: Db,
+) -> Value {
+    let params = FindArticles {
+        tag,
+        author,
+        favorited,
+        limit,
+        offset,
+    };
     let user_id = auth.map(|x| x.id);
     let articles = db
         .run(move |conn| database::articles::find(conn, &params, user_id))
@@ -157,8 +170,14 @@ pub async fn get_comments(slug: String, db: Db) -> Value {
     json!({ "comments": comments })
 }
 
-#[get("/articles/feed?<params..>")]
-pub async fn get_articles_feed(params: Form<FeedArticles>, auth: Auth, db: Db) -> Value {
+#[get("/articles/feed?<limit>&<offset>")]
+pub async fn get_articles_feed(
+    limit: Option<i64>,
+    offset: Option<i64>,
+    auth: Auth,
+    db: Db,
+) -> Value {
+    let params = FeedArticles { limit, offset };
     let articles = db
         .run(move |conn| database::articles::feed(conn, &params, auth.id))
         .await;

@@ -6,7 +6,6 @@ use crate::errors::{Errors, FieldValidator};
 use rocket::serde::json::{json, Json, Value};
 use rocket::State;
 use serde::Deserialize;
-use validator::Validate;
 
 #[derive(Deserialize)]
 pub struct NewUser {
