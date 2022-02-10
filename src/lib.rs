@@ -68,7 +68,7 @@ pub fn rocket() -> _ {
                 routes::profiles::unfollow,
             ],
         )
-        .attach(db::Conn::fairing())
+        .attach(db::Db::fairing())
         .attach(cors_fairing())
         .attach(config::AppState::manage())
         .register(catchers![not_found])
