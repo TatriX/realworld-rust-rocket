@@ -27,7 +27,7 @@ struct NewUserData {
 pub async fn post_users(
     new_user: Json<NewUser>,
     db: Db,
-    state: State<AppState>,
+    state: &State<AppState>,
 ) -> Result<Value, Errors> {
     let new_user = new_user.into_inner().user;
 
@@ -37,10 +37,10 @@ pub async fn post_users(
     let password = extractor.extract("password", new_user.password);
 
     extractor.check()?;
-
+    let secret = state.secret.clone();
     db.run(move |conn| {
         database::users::create(conn, &username, &email, &password)
-            .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
+            .map(|user| json!({ "user": user.to_user_auth(&secret) }))
             .map_err(|error| {
                 let field = match error {
                     UserCreationError::DuplicatedEmail => "email",
@@ -67,7 +67,7 @@ struct LoginUserData {
 pub async fn post_users_login(
     user: Json<LoginUser>,
     db: Db,
-    state: State<AppState>,
+    state: &State<AppState>,
 ) -> Result<Value, Errors> {
     let user = user.into_inner().user;
 
@@ -76,17 +76,19 @@ pub async fn post_users_login(
     let password = extractor.extract("password", user.password);
     extractor.check()?;
 
+    let secret = state.secret.clone();
     db.run(move |conn| database::users::login(conn, &email, &password))
         .await
-        .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
+        .map(|user| json!({ "user": user.to_user_auth(&secret) }))
         .ok_or_else(|| Errors::new(&[("email or password", "is invalid")]))
 }
 
 #[get("/user")]
-pub async fn get_user(auth: Auth, db: Db, state: State<AppState>) -> Option<Value> {
+pub async fn get_user(auth: Auth, db: Db, state: &State<AppState>) -> Option<Value> {
+    let secret = state.secret.clone();
     db.run(move |conn| database::users::find(conn, auth.id))
         .await
-        .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
+        .map(|user| json!({ "user": user.to_user_auth(&secret) }))
 }
 
 #[derive(Deserialize)]
@@ -99,9 +101,10 @@ pub async fn put_user(
     user: Json<UpdateUser>,
     auth: Auth,
     db: Db,
-    state: State<AppState>,
+    state: &State<AppState>,
 ) -> Option<Value> {
+    let secret = state.secret.clone();
     db.run(move |conn| database::users::update(conn, auth.id, &user.user))
         .await
-        .map(|user| json!({ "user": user.to_user_auth(&state.secret) }))
+        .map(|user| json!({ "user": user.to_user_auth(&secret) }))
 }
