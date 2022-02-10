@@ -4,7 +4,7 @@ mod common;
 
 use common::*;
 use rocket::http::{ContentType, Status};
-use rocket::local::LocalResponse;
+use rocket::local::blocking::LocalResponse;
 
 #[test]
 /// Register new user, handling repeated registration as well.

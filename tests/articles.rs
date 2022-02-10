@@ -4,7 +4,7 @@ mod common;
 
 use common::*;
 use rocket::http::{ContentType, Status};
-use rocket::local::{Client, LocalResponse};
+use rocket::local::blocking::{Client, LocalResponse};
 
 const ARTICLE_TITLE: &str = "Test article";
 const ARTICLE_BODY: &str = "This is obviously a test article!";
@@ -183,7 +183,6 @@ fn test_get_articles_with_params() {
         .expect("must have 'articlesCount' field");
 }
 
-
 #[test]
 /// Test getting articles feed.
 fn test_get_articles_fedd() {
@@ -191,10 +190,7 @@ fn test_get_articles_fedd() {
     let token = login(&client);
 
     let url = "/api/articles/feed?limit=1&offset=0";
-    let response = &mut client
-        .get(url)
-        .header(token_header(token))
-        .dispatch();
+    let response = &mut client.get(url).header(token_header(token)).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
