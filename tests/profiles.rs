@@ -8,9 +8,9 @@ use rocket::http::Status;
 #[test]
 /// Test profile getting.
 fn test_get_profile() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut client
+    let response = client
         .get(format!("/api/profiles/{}", USERNAME))
         .header(token_header(token))
         .dispatch();
@@ -28,7 +28,7 @@ fn test_get_profile() {
 #[test]
 /// Test follow and unfollow
 fn test_follow_and_unfollow() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
 
     let author = "author";
