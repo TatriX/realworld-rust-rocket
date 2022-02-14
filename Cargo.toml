@@ -49,3 +49,16 @@ default = ["random-suffix"]
 # Enable generation of random suffix when making article slug. This
 # allows having multiple articles with the same title.
 random-suffix = []
+
+[profile.dev.package."*"]
+# Build dependencies with full release optimizations in debug builds.
+# (Since they won't change often and probably do most of the heavy lifting)
+opt-level = 3
+
+[profile.dev]
+# Build the project itself with just enough optimization to smooth out the
+# most egregious of the abstractions which are only zero-cost when optimized
+opt-level = 1
+# Disable debug info in the binary to speed up builds
+# Source: https://lemmy.ml/post/50089
+debug = 0
