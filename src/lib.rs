@@ -2,12 +2,13 @@
 
 #[macro_use]
 extern crate rocket;
+use rocket::serde::json::{json, Value};
 
 #[macro_use]
 extern crate rocket_sync_db_pools;
 
-use rocket::serde::json::json;
-use rocket_cors;
+extern crate rocket_cors;
+use rocket_cors::{Cors, CorsOptions};
 
 #[macro_use]
 extern crate diesel;
@@ -24,9 +25,6 @@ mod errors;
 mod models;
 mod routes;
 mod schema;
-
-use rocket::serde::json::Value;
-use rocket_cors::{Cors, CorsOptions};
 
 #[catch(404)]
 fn not_found() -> Value {
