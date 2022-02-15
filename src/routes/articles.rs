@@ -52,23 +52,8 @@ pub async fn post_articles(
 }
 
 /// return multiple articles, ordered by most recent first
-#[get("/articles?<tag>&<author>&<favorited>&<limit>&<offset>")]
-pub async fn get_articles(
-    tag: Option<String>,
-    author: Option<String>,
-    favorited: Option<String>,
-    limit: Option<i64>,
-    offset: Option<i64>,
-    auth: Option<Auth>,
-    db: Db,
-) -> Value {
-    let params = FindArticles {
-        tag,
-        author,
-        favorited,
-        limit,
-        offset,
-    };
+#[get("/articles?<params..>")]
+pub async fn get_articles(params: FindArticles, auth: Option<Auth>, db: Db) -> Value {
     let user_id = auth.map(|x| x.id);
     let articles = db
         .run(move |conn| database::articles::find(conn, &params, user_id))
@@ -170,14 +155,8 @@ pub async fn get_comments(slug: String, db: Db) -> Value {
     json!({ "comments": comments })
 }
 
-#[get("/articles/feed?<limit>&<offset>")]
-pub async fn get_articles_feed(
-    limit: Option<i64>,
-    offset: Option<i64>,
-    auth: Auth,
-    db: Db,
-) -> Value {
-    let params = FeedArticles { limit, offset };
+#[get("/articles/feed?<params..>")]
+pub async fn get_articles_feed(params: FeedArticles, auth: Auth, db: Db) -> Value {
     let articles = db
         .run(move |conn| database::articles::feed(conn, &params, auth.id))
         .await;

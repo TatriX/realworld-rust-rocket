@@ -9,7 +9,6 @@ use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
-use rocket::form::FromForm;
 use serde::Deserialize;
 use slug;
 
