@@ -25,6 +25,8 @@ fn test_register() {
         check_user_response(response);
     } else if status == Status::UnprocessableEntity {
         check_user_validation_errors(response);
+    } else {
+        panic!("Got status: {}", status);
     }
 }
 
