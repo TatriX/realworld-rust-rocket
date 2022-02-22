@@ -17,6 +17,9 @@ For more information on how to this works with other
 frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
 ### CHANGELOG
+Main branch is based on async version of Rocket (v0.5.0-rc.1).
+
+There is also a [branch](https://github.com/TatriX/realworld-rust-rocket/tree/rocket-v0.4) based on non-async (v0.4) version of Rocket.
 
 Please see the [CHANGELOG](CHANGELOG.md) for a release history.
 

@@ -1,7 +1,7 @@
 [package]
 authors = ["TatriX <tatrics@gmail.com>"]
 name = "realworld"
-version = "0.5.3"
+version = "0.6.0"
 edition = "2021"
 license = "Unlicense OR MIT"
 
