@@ -4,7 +4,7 @@ mod common;
 
 use common::*;
 use rocket::http::{ContentType, Status};
-use rocket::local::{Client, LocalResponse};
+use rocket::local::blocking::{Client, LocalResponse};
 
 const ARTICLE_TITLE: &str = "Test article";
 const ARTICLE_BODY: &str = "This is obviously a test article!";
@@ -12,9 +12,9 @@ const ARTICLE_BODY: &str = "This is obviously a test article!";
 #[test]
 /// Test article creation.
 fn test_post_articles() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token);
+    let response = create_article(&client, token);
 
     let value = response_json_value(response);
     let title = value
@@ -30,14 +30,14 @@ fn test_post_articles() {
 #[test]
 /// Test article retrieval.
 fn test_get_article() {
-    let client = test_client();
-    let response = &mut create_article(&client, login(&client));
+    let client = test_client().lock().unwrap();
+    let response = create_article(&client, login(&client));
 
     let slug = article_slug(response);
     // Slug can contain random prefix, thus `start_with` instead of `assert_eq`!
     assert!(slug.starts_with(&ARTICLE_TITLE.to_lowercase().replace(' ', "-")));
 
-    let response = &mut client.get(format!("/api/articles/{}", slug)).dispatch();
+    let response = client.get(format!("/api/articles/{}", slug)).dispatch();
 
     let value = response_json_value(response);
     let body = value
@@ -51,14 +51,14 @@ fn test_get_article() {
 #[test]
 /// Test article update.
 fn test_put_articles() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
     let new_desc = "Well, it's an updated test article";
-    let response = &mut client
+    let response = client
         .put(format!("/api/articles/{}", slug))
         .header(ContentType::JSON)
         .header(token_header(token))
@@ -82,13 +82,13 @@ fn test_put_articles() {
 #[test]
 /// Test article deletion.
 fn test_delete_article() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client
+    let response = client
         .delete(format!("/api/articles/{}", slug))
         .header(token_header(token))
         .dispatch();
@@ -99,13 +99,13 @@ fn test_delete_article() {
 #[test]
 /// Test that it's not possible to delete article anonymously.
 fn test_delete_article_anonymously() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client.delete(format!("/api/articles/{}", slug)).dispatch();
+    let response = client.delete(format!("/api/articles/{}", slug)).dispatch();
 
     assert_eq!(response.status(), Status::Forbidden);
 }
@@ -113,13 +113,13 @@ fn test_delete_article_anonymously() {
 #[test]
 /// Test putting article to favorites.
 fn test_favorite_article() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client
+    let response = client
         .post(format!("/api/articles/{}/favorite", slug))
         .header(token_header(token))
         .dispatch();
@@ -130,13 +130,13 @@ fn test_favorite_article() {
 #[test]
 /// Test removing article from favorites .
 fn test_unfavorite_article() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client
+    let response = client
         .delete(format!("/api/articles/{}/favorite", slug))
         .header(token_header(token))
         .dispatch();
@@ -147,11 +147,11 @@ fn test_unfavorite_article() {
 #[test]
 /// Test getting multiple articles.
 fn test_get_articles() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
     create_article(&client, token);
 
-    let response = &mut client.get("/api/articles").dispatch();
+    let response = client.get("/api/articles").dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -167,12 +167,12 @@ fn test_get_articles() {
 #[test]
 /// Test getting multiple articles with params.
 fn test_get_articles_with_params() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
     create_article(&client, token);
 
     let url = "/api/articles?tag=foo&author=smoketest&favorited=smoketest&limit=1&offset=0";
-    let response = &mut client.get(url).dispatch();
+    let response = client.get(url).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -183,18 +183,14 @@ fn test_get_articles_with_params() {
         .expect("must have 'articlesCount' field");
 }
 
-
 #[test]
 /// Test getting articles feed.
 fn test_get_articles_fedd() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
 
     let url = "/api/articles/feed?limit=1&offset=0";
-    let response = &mut client
-        .get(url)
-        .header(token_header(token))
-        .dispatch();
+    let response = client.get(url).header(token_header(token)).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -205,13 +201,13 @@ fn test_get_articles_fedd() {
 #[test]
 /// Test posting and deleteing of comments.
 fn test_commenting() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client
+    let response = client
         .post(format!("/api/articles/{}/comments", slug))
         .header(ContentType::JSON)
         .header(token_header(token.clone()))
@@ -242,13 +238,13 @@ fn test_commenting() {
 #[test]
 /// Test getting comments.
 fn test_get_comment() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut create_article(&client, token.clone());
+    let response = create_article(&client, token.clone());
 
     let slug = article_slug(response);
 
-    let response = &mut client
+    let response = client
         .get(format!("/api/articles/{}/comments", slug))
         .dispatch();
 
@@ -266,7 +262,7 @@ fn test_get_comment() {
 
 // Utility functions
 
-fn article_slug(response: &mut LocalResponse) -> String {
+fn article_slug(response: LocalResponse) -> String {
     response_json_value(response)
         .get("article")
         .and_then(|article| article.get("slug"))

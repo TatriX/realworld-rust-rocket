@@ -1,4 +1,4 @@
-use crate::db::OffsetLimit;
+use crate::database::OffsetLimit;
 use crate::models::article::{Article, ArticleJson};
 use crate::models::user::User;
 use crate::schema::articles;
@@ -73,12 +73,12 @@ fn generate_suffix(len: usize) -> String {
 
 #[derive(FromForm, Default)]
 pub struct FindArticles {
-    tag: Option<String>,
-    author: Option<String>,
+    pub tag: Option<String>,
+    pub author: Option<String>,
     /// favorited by user
-    favorited: Option<String>,
-    limit: Option<i64>,
-    offset: Option<i64>,
+    pub favorited: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
 
 pub fn find(
@@ -157,8 +157,8 @@ pub fn find_one(conn: &PgConnection, slug: &str, user_id: Option<i32>) -> Option
 
 #[derive(FromForm, Default)]
 pub struct FeedArticles {
-    limit: Option<i64>,
-    offset: Option<i64>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
 
 // select * from articles where author in (select followed from follows where follower = 7);

@@ -1,5 +1,7 @@
 use realworld;
+use rocket;
 
-fn main() {
-    realworld::rocket().launch();
+#[rocket::main]
+async fn main() -> Result<(), rocket::Error> {
+    realworld::rocket().launch().await
 }

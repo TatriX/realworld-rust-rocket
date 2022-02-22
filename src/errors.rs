@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::request::Request;
 use rocket::response::status;
 use rocket::response::{self, Responder};
-use rocket_contrib::json::Json;
+use rocket::serde::json::{json, Json};
 use validator::{Validate, ValidationError, ValidationErrors};
 
 #[derive(Debug)]
@@ -23,14 +23,17 @@ impl Errors {
     }
 }
 
-impl<'r> Responder<'r> for Errors {
-    fn respond_to(self, req: &Request) -> response::Result<'r> {
+impl<'r> Responder<'r, 'static> for Errors {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
         use validator::ValidationErrorsKind::Field;
 
         let mut errors = json!({});
         for (field, field_errors) in self.errors.into_errors() {
             if let Field(field_errors) = field_errors {
-                errors[field] = field_errors.into_iter().map(|field_error| field_error.code).collect();
+                errors[field] = field_errors
+                    .into_iter()
+                    .map(|field_error| field_error.code)
+                    .collect();
             }
         }
 

@@ -2,11 +2,12 @@
 
 //! This file contains utility functions used by all tests.
 
+use once_cell::sync::OnceCell;
 use realworld;
 use rocket::http::{ContentType, Header, Status};
-use rocket::local::{Client, LocalResponse};
+use rocket::local::blocking::{Client, LocalResponse};
 use serde_json::Value;
-use once_cell::sync::OnceCell;
+use std::sync::Mutex;
 
 pub const USERNAME: &'static str = "smoketest";
 pub const EMAIL: &'static str = "smoketest@realworld.io";
@@ -22,14 +23,12 @@ macro_rules! json_string {
 
 pub type Token = String;
 
-
-pub fn test_client() -> &'static Client {
-    static INSTANCE: OnceCell<Client> = OnceCell::new();
+pub fn test_client() -> &'static Mutex<Client> {
+    static INSTANCE: OnceCell<Mutex<Client>> = OnceCell::new();
     INSTANCE.get_or_init(|| {
         let rocket = realworld::rocket();
-        Client::new(rocket).expect("valid rocket instance")
+        Mutex::from(Client::tracked(rocket).expect("valid rocket instance"))
     })
-
 }
 
 /// Retrieve a token registering a user if required.
@@ -46,16 +45,16 @@ pub fn token_header(token: Token) -> Header<'static> {
 }
 
 /// Helper function for converting response to json value.
-pub fn response_json_value(response: &mut LocalResponse) -> Value {
-    let body = response.body().expect("no body");
-    serde_json::from_reader(body.into_inner()).expect("can't parse value")
+pub fn response_json_value<'a>(response: LocalResponse<'a>) -> Value {
+    let body = response.into_string().unwrap();
+    serde_json::from_str(&body).expect("can't parse value")
 }
 
 // Internal stuff
 
 /// Login as default user returning None if login is not found
 fn try_login(client: &Client) -> Option<Token> {
-    let response = &mut client
+    let response = client
         .post("/api/users/login")
         .header(ContentType::JSON)
         .body(json_string!({"user": {"email": EMAIL, "password": PASSWORD}}))
@@ -83,8 +82,5 @@ pub fn register(client: &Client, username: &str, email: &str, password: &str) {
         .body(json_string!({"user": {"username": username, "email": email, "password": password}}))
         .dispatch();
 
-    match response.status() {
-        Status::Ok | Status::UnprocessableEntity => {} // ok,
-        status => panic!("Registration failed: {}", status)
-    }
+    assert!(response.status() == Status::Ok || response.status() == Status::UnprocessableEntity);
 }

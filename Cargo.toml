@@ -21,8 +21,8 @@ categories = ["web-programming"]
 travis-ci = { repository = "TatriX/realworld-rust-rocket" }
 
 [dependencies]
-rocket = { version = "0.4.10", default-features = false }
-rocket_cors = { version = "0.5.2", default-features = false }
+rocket = { version = "0.5.0-rc.1", default-features = false, features = ["json"] }
+rocket_cors = { version = "0.6.0-alpha1", default-features = false }
 serde = { version = "1.0.133", features = ["derive"] }
 serde_json = "1.0.75"
 scrypt = { version = "0.8.1", default-features = true }
@@ -35,10 +35,10 @@ rand = "0.8.4"
 dotenv = "0.15.0"
 jsonwebtoken = "7.2.0"
 
-[dependencies.rocket_contrib]
-version = "0.4.10"
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-rc.1"
 default-features = false
-features = ["json", "diesel_postgres_pool"]
+features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
 once_cell = "1.9.0"
@@ -49,3 +49,16 @@ default = ["random-suffix"]
 # Enable generation of random suffix when making article slug. This
 # allows having multiple articles with the same title.
 random-suffix = []
+
+[profile.dev.package."*"]
+# Build dependencies with full release optimizations in debug builds.
+# (Since they won't change often and probably do most of the heavy lifting)
+opt-level = 3
+
+[profile.dev]
+# Build the project itself with just enough optimization to smooth out the
+# most egregious of the abstractions which are only zero-cost when optimized
+opt-level = 1
+# Disable debug info in the binary to speed up builds
+# Source: https://lemmy.ml/post/50089
+debug = 0

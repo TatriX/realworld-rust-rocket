@@ -4,13 +4,13 @@ mod common;
 
 use common::*;
 use rocket::http::{ContentType, Status};
-use rocket::local::LocalResponse;
+use rocket::local::blocking::LocalResponse;
 
 #[test]
 /// Register new user, handling repeated registration as well.
 fn test_register() {
-    let client = test_client();
-    let response = &mut client
+    let client = test_client().lock().unwrap();
+    let response = client
         .post("/api/users")
         .header(ContentType::JSON)
         .body(json_string!({"user": {"username": USERNAME, "email": EMAIL, "password": PASSWORD}}))
@@ -21,20 +21,22 @@ fn test_register() {
     //
     // As tests are ran in an indepent order `login()` probably has already created smoketest user.
     // And so we gracefully handle "user already exists" error here.
-    match status {
-        Status::Ok => check_user_response(response),
-        Status::UnprocessableEntity => check_user_validation_errors(response),
-        _ => panic!("Got status: {}", status),
+    if status == Status::Ok {
+        check_user_response(response);
+    } else if status == Status::UnprocessableEntity {
+        check_user_validation_errors(response);
+    } else {
+        panic!("Got status: {}", status);
     }
 }
 
 #[test]
 /// Registration with the same email must fail
 fn test_register_with_duplicated_email() {
-    let client = test_client();
-    register(client, "clone", "clone@realworld.io", PASSWORD);
+    let client = test_client().lock().unwrap();
+    register(&client, "clone", "clone@realworld.io", PASSWORD);
 
-    let response = &mut client
+    let response = client
         .post("/api/users")
         .header(ContentType::JSON)
         .body(json_string!({
@@ -55,14 +57,14 @@ fn test_register_with_duplicated_email() {
         .and_then(|errors| errors.get(0))
         .and_then(|error| error.as_str());
 
-    assert_eq!(error, Some("has already been taken"))
+    assert_eq!(error, Some("has already been taken"));
 }
 
 #[test]
 /// Login with wrong password must fail.
 fn test_incorrect_login() {
-    let client = test_client();
-    let response = &mut client
+    let client = test_client().lock().unwrap();
+    let response = client
         .post("/api/users/login")
         .header(ContentType::JSON)
         .body(json_string!({"user": {"email": EMAIL, "password": "foo"}}))
@@ -86,8 +88,8 @@ fn test_incorrect_login() {
 #[test]
 /// Try logging checking that access Token is present.
 fn test_login() {
-    let client = test_client();
-    let response = &mut client
+    let client = test_client().lock().unwrap();
+    let response = client
         .post("/api/users/login")
         .header(ContentType::JSON)
         .body(json_string!({"user": {"email": EMAIL, "password": PASSWORD}}))
@@ -106,9 +108,9 @@ fn test_login() {
 #[test]
 /// Check that `/user` endpoint returns expected data.
 fn test_get_user() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut client
+    let response = client
         .get("/api/user")
         .header(token_header(token))
         .dispatch();
@@ -119,9 +121,9 @@ fn test_get_user() {
 #[test]
 /// Test user updating.
 fn test_put_user() {
-    let client = test_client();
+    let client = test_client().lock().unwrap();
     let token = login(&client);
-    let response = &mut client
+    let response = client
         .put("/api/user")
         .header(token_header(token))
         .header(ContentType::JSON)
@@ -134,7 +136,7 @@ fn test_put_user() {
 // Utility functions
 
 /// Assert that body contains "user" response with expected fields.
-fn check_user_response(response: &mut LocalResponse) {
+fn check_user_response(response: LocalResponse) {
     let value = response_json_value(response);
     let user = value.get("user").expect("must have a 'user' field");
 
@@ -145,7 +147,7 @@ fn check_user_response(response: &mut LocalResponse) {
     assert!(user.get("token").is_some());
 }
 
-fn check_user_validation_errors(response: &mut LocalResponse) {
+fn check_user_validation_errors(response: LocalResponse) {
     let value = response_json_value(response);
     let username_error = value
         .get("errors")
